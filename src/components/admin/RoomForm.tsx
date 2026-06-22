@@ -1,0 +1,196 @@
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DEPARTMENTS, FLOORS, BUILDINGS } from "@/constants";
+import type { Room, RoomFormData } from "@/types";
+
+const roomSchema = z.object({
+  roomNumber: z.string().min(1, "Room number is required"),
+  roomName: z.string().min(1, "Room name is required"),
+  department: z.string().min(1, "Department is required"),
+  floor: z.string().min(1, "Floor is required"),
+  building: z.string().min(1, "Building is required"),
+  status: z.enum(["occupied", "vacant"]),
+  gender: z.enum(["male", "female"]).nullable(),
+});
+
+interface RoomFormProps {
+  defaultValues?: Partial<Room>;
+  onSubmit: (data: RoomFormData) => Promise<void>;
+  isSubmitting: boolean;
+  submitLabel?: string;
+}
+
+export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = "Save" }: RoomFormProps) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<RoomFormData>({
+    resolver: zodResolver(roomSchema),
+    defaultValues: {
+      roomNumber: defaultValues?.roomNumber ?? "",
+      roomName: defaultValues?.roomName ?? "",
+      department: defaultValues?.department ?? "",
+      floor: defaultValues?.floor ?? "",
+      building: defaultValues?.building ?? "",
+      status: defaultValues?.status ?? "vacant",
+      gender: defaultValues?.gender ?? null,
+    },
+  });
+
+  const status = watch("status");
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="roomNumber">Room Number *</Label>
+          <Input id="roomNumber" placeholder="e.g. 501" {...register("roomNumber")} />
+          {errors.roomNumber && (
+            <p className="text-xs text-destructive">{errors.roomNumber.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="roomName">Room Name *</Label>
+          <Input id="roomName" placeholder="e.g. Suite A" {...register("roomName")} />
+          {errors.roomName && (
+            <p className="text-xs text-destructive">{errors.roomName.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="space-y-1.5">
+          <Label>Department *</Label>
+          <Select
+            defaultValue={defaultValues?.department}
+            onValueChange={(v) => { if (v) setValue("department", v); }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select department" />
+            </SelectTrigger>
+            <SelectContent>
+              {DEPARTMENTS.map((d) => (
+                <SelectItem key={d} value={d}>
+                  {d}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.department && (
+            <p className="text-xs text-destructive">{errors.department.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Floor *</Label>
+          <Select
+            defaultValue={defaultValues?.floor}
+            onValueChange={(v) => { if (v) setValue("floor", v); }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select floor" />
+            </SelectTrigger>
+            <SelectContent>
+              {FLOORS.map((f) => (
+                <SelectItem key={f} value={f}>
+                  {f}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.floor && (
+            <p className="text-xs text-destructive">{errors.floor.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Building *</Label>
+          <Select
+            defaultValue={defaultValues?.building}
+            onValueChange={(v) => { if (v) setValue("building", v); }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select building" />
+            </SelectTrigger>
+            <SelectContent>
+              {BUILDINGS.map((b) => (
+                <SelectItem key={b} value={b}>
+                  {b}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.building && (
+            <p className="text-xs text-destructive">{errors.building.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label>Status *</Label>
+          <Select
+            defaultValue={defaultValues?.status ?? "vacant"}
+            onValueChange={(v) => {
+              setValue("status", v as "occupied" | "vacant");
+              if (v === "vacant") setValue("gender", null);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="vacant">Vacant</SelectItem>
+              <SelectItem value="occupied">Occupied</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {status === "occupied" && (
+          <div className="space-y-1.5">
+            <Label>Patient Gender</Label>
+            <Select
+              defaultValue={defaultValues?.gender ?? undefined}
+              onValueChange={(v) => setValue("gender", v as "male" | "female")}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end gap-3 pt-2">
+        <Button type="submit" disabled={isSubmitting} className="min-w-24">
+          {isSubmitting ? (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            submitLabel
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}

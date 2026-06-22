@@ -1,0 +1,666 @@
+# ROLE
+
+You are a Senior Full Stack Engineer with 15+ years of experience in Next.js, React, TypeScript, TailwindCSS, Firebase Firestore, and modern UI/UX.
+
+Your task is to build a complete production-ready Hospital Room Display Management System from scratch.
+
+Think like a Senior Software Architect.
+
+Always create reusable components, maintain a clean folder structure, and follow best practices.
+
+Never create unnecessary complexity.
+
+---
+
+# PROJECT
+
+Hospital Room Display Management System
+
+The system consists of two modules:
+
+1. Admin Panel
+2. Room Display Screen (Tablet/Kiosk)
+
+Everything should be synchronized in real-time using Firebase Firestore.
+
+There is NO backend.
+
+Everything will be handled using Next.js + Firebase.
+
+---
+
+# TECH STACK
+
+Framework:
+- Next.js 15 (App Router)
+- TypeScript
+
+Styling:
+- TailwindCSS
+- shadcn/ui
+
+State Management:
+- Zustand
+
+Forms:
+- React Hook Form
+- Zod
+
+Icons:
+- Lucide React
+
+Database:
+- Firebase Firestore
+
+Storage:
+- Firebase Storage
+
+Realtime:
+- Firestore Snapshot Listener
+
+Notifications:
+- Sonner
+
+Animations:
+- Framer Motion
+
+Deployment:
+- Vercel
+
+---
+
+# AUTHENTICATION
+
+There is NO authentication.
+
+Create a Login page only for UI purposes.
+
+Fields:
+
+Email
+
+Password
+
+Login Button
+
+Clicking Login should simply redirect to:
+
+/dashboard
+
+No validation
+
+No API
+
+No Firebase Auth
+
+---
+
+# PROJECT STRUCTURE
+
+src/
+
+app/
+
+components/
+
+hooks/
+
+lib/
+
+firebase/
+
+types/
+
+services/
+
+store/
+
+constants/
+
+utils/
+
+public/
+
+---
+
+# ROUTES
+
+/
+
+Login Page
+
+/dashboard
+
+Dashboard
+
+/rooms
+
+Room Listing
+
+/rooms/add
+
+Add Room
+
+/rooms/edit/[id]
+
+Edit Room
+
+/branding
+
+Branding Settings
+
+/audit
+
+Audit Logs
+
+/display/[roomId]
+
+Public Tablet Display
+
+---
+
+# DASHBOARD
+
+Create beautiful modern dashboard cards.
+
+Show:
+
+Total Rooms
+
+Occupied Rooms
+
+Vacant Rooms
+
+Male Rooms
+
+Female Rooms
+
+Latest Updates
+
+Quick Actions
+
+---
+
+# ROOM MODEL
+
+interface Room {
+
+id
+
+roomNumber
+
+roomName
+
+department
+
+floor
+
+building
+
+status
+
+occupied | vacant
+
+gender
+
+male | female | null
+
+displayUrl
+
+createdAt
+
+updatedAt
+
+}
+
+---
+
+# ROOM MANAGEMENT
+
+Admin can:
+
+Create Room
+
+Edit Room
+
+Delete Room
+
+Search Room
+
+Filter Room
+
+Copy Display URL
+
+Generate Display URL automatically
+
+Example:
+
+/display/501
+
+---
+
+# DISPLAY SCREEN
+
+The display will run on a tablet mounted outside the room.
+
+The UI should look premium and modern.
+
+Display:
+
+Hospital Logo
+
+Room Number
+
+Room Name
+
+Occupied/Vacant
+
+Patient Gender
+
+Current Time
+
+Current Date
+
+---
+
+# DISPLAY STATES
+
+If status == occupied
+
+Header:
+
+RED
+
+Text:
+
+OCCUPIED
+
+Card:
+
+Male
+
+Blue
+
+or
+
+Female
+
+Pink
+
+LED side glow:
+
+Red
+
+--------------------------------
+
+If status == vacant
+
+Header:
+
+GREEN
+
+Text:
+
+VACANT
+
+Card:
+
+Available
+
+Green
+
+No gender shown
+
+LED side glow:
+
+Green
+
+---
+
+# LOCAL TABLET CONTROLS
+
+By default
+
+Everything is LOCKED.
+
+There should be a hidden floating button on the left or right side.
+
+Click
+
+↓
+
+Open Unlock Dialog
+
+↓
+
+Pattern Lock Screen
+
+↓
+
+Success
+
+↓
+
+Open Settings Panel
+
+---
+
+# SETTINGS PANEL
+
+Buttons
+
+Occupied
+
+Vacant
+
+Male
+
+Female
+
+Save & Close
+
+Cancel
+
+---
+
+# SAVE FLOW
+
+Save
+
+↓
+
+Update Firestore
+
+↓
+
+Create Audit Log
+
+↓
+
+Refresh Admin Dashboard
+
+↓
+
+Refresh Every Tablet
+
+↓
+
+Close Panel
+
+↓
+
+Lock Again
+
+---
+
+# AUTO LOCK
+
+Auto lock after 60 seconds of inactivity.
+
+Configurable.
+
+---
+
+# BRANDING PAGE
+
+Admin can upload:
+
+Hospital Logo
+
+Primary Color
+
+Secondary Color
+
+Every display should instantly update.
+
+---
+
+# AUDIT LOG
+
+Every change should create a log.
+
+Store:
+
+timestamp
+
+roomId
+
+previousStatus
+
+newStatus
+
+previousGender
+
+newGender
+
+source
+
+(Admin / Tablet)
+
+Display logs inside a searchable table.
+
+---
+
+# FIREBASE COLLECTIONS
+
+rooms
+
+branding
+
+auditLogs
+
+Use Firestore best practices.
+
+Create reusable services.
+
+Do NOT access firestore directly inside components.
+
+Use service layer.
+
+Example
+
+services/
+
+room.service.ts
+
+branding.service.ts
+
+audit.service.ts
+
+---
+
+# UI DESIGN
+
+Use modern enterprise design.
+
+Rounded cards
+
+Soft shadows
+
+Responsive
+
+Glass effect where appropriate
+
+Smooth animations
+
+Professional hospital appearance
+
+Large typography
+
+Accessible colors
+
+Beautiful empty states
+
+Skeleton loading
+
+Toast notifications
+
+---
+
+# COMPONENTS
+
+Everything must be reusable.
+
+Button
+
+Card
+
+Modal
+
+Dialog
+
+StatusBadge
+
+RoomCard
+
+GenderCard
+
+Header
+
+Sidebar
+
+DataTable
+
+SearchInput
+
+ColorPicker
+
+LogoUploader
+
+PatternLock
+
+Clock
+
+DateDisplay
+
+---
+
+# FIREBASE REALTIME
+
+Every page should use realtime listeners.
+
+If admin changes status
+
+↓
+
+Every display updates immediately.
+
+If tablet changes status
+
+↓
+
+Dashboard updates immediately.
+
+No refresh.
+
+---
+
+# RESPONSIVENESS
+
+Desktop
+
+Tablet
+
+Landscape Tablet
+
+Mobile
+
+Support fullscreen kiosk mode.
+
+---
+
+# CODE QUALITY
+
+Use TypeScript everywhere.
+
+No any types.
+
+Use reusable hooks.
+
+Separate business logic.
+
+No duplicated code.
+
+Follow SOLID principles.
+
+Keep components under 200 lines.
+
+Use constants instead of magic strings.
+
+---
+
+# PERFORMANCE
+
+Use Server Components where possible.
+
+Use Client Components only when necessary.
+
+Optimize rerenders.
+
+Lazy load heavy components.
+
+Memoize expensive calculations.
+
+---
+
+# ERROR HANDLING
+
+Empty state
+
+Loading state
+
+Error state
+
+Offline state
+
+No data state
+
+---
+
+# FUTURE READY
+
+Architecture should allow adding:
+
+Multi Hospital
+
+Multiple Admins
+
+Arabic Language
+
+QR Code
+
+Emergency Broadcast
+
+Device Monitoring
+
+Analytics
+
+Without major refactoring.
+
+---
+
+# EXPECTATIONS
+
+Before generating code:
+
+1. Plan folder structure
+2. Plan Firebase schema
+3. Plan reusable components
+4. Plan services
+5. Plan hooks
+6. Plan UI
+7. Plan routing
+
+After planning,
+
+Generate the project step by step.
+
+Never generate placeholder code if real implementation can be created.
+
+Always generate production-ready code.
+
+Always explain file structure before creating files.
+
+Always keep consistency across the entire project.
+
+Act as a Senior Engineer, UI Designer, and Software Architect simultaneously.
