@@ -9,7 +9,7 @@ export const DEFAULT_BRANDING: Branding = {
   primaryColor: "#0ea5e9",
   secondaryColor: "#0284c7",
   displayBgColor: "#ffffff",
-  headerColor: "#7B2856",
+  headerColor: "#96163C",
   roomCardColor: "#000000",
   maleColor: "#4169E1",
   femaleColor: "#be185d",
