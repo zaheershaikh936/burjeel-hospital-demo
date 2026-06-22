@@ -275,26 +275,26 @@ export default function RoomDisplayPage({
       </AnimatePresence>
 
       {/* ── Main cards ── */}
-      <div className="flex-1 flex items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 relative z-10 min-h-0">
+      <div className="flex-1 flex items-center justify-center gap-5 sm:gap-8 p-4 sm:p-6 relative z-10 min-h-0">
         {/* Room number card */}
         <motion.div
           layout
-          className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-lg"
+          className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-xl"
           style={{
             backgroundColor: roomCardBg,
-            width: "clamp(180px, 36vw, 380px)",
-            height: "clamp(180px, 36vw, 380px)",
+            width: "min(44vw, 62vh)",
+            height: "min(44vw, 62vh)",
           }}
         >
           <p
             className="font-black text-white tracking-tight leading-none text-center"
-            style={{ fontSize: `clamp(2.5rem, ${fontSizePx * 0.1}vw + 1rem, ${fontSizePx}px)` }}
+            style={{ fontSize: `clamp(3.5rem, ${fontSizePx * 0.13}vw + 1rem, ${fontSizePx}px)` }}
           >
             {room.roomNumber}
           </p>
           <p
-            className="font-bold text-white/60 mt-2 sm:mt-3 text-center px-4"
-            style={{ fontSize: "clamp(0.85rem, 2vw, 1.4rem)" }}
+            className="font-bold text-white/60 mt-3 text-center px-6"
+            style={{ fontSize: "clamp(1.1rem, 2.8vw, 2rem)" }}
           >
             {room.roomName}
           </p>
@@ -308,19 +308,19 @@ export default function RoomDisplayPage({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-lg"
+            className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-xl"
             style={{
               backgroundColor: genderCardBg,
-              width: "clamp(180px, 36vw, 380px)",
-              height: "clamp(180px, 36vw, 380px)",
+              width: "min(44vw, 62vh)",
+              height: "min(44vw, 62vh)",
             }}
           >
             <span
               className="text-white leading-none"
               style={{
-                fontSize: `clamp(4rem, ${Math.round(fontSizePx * 1.2) * 0.12}vw + 2rem, ${Math.round(fontSizePx * 1.2)}px)`,
+                fontSize: `clamp(5rem, ${Math.round(fontSizePx * 1.2) * 0.14}vw + 2rem, ${Math.round(fontSizePx * 1.2)}px)`,
                 lineHeight: 1,
-                WebkitTextStroke: "clamp(3px, 0.5vw, 6px) white",
+                WebkitTextStroke: "clamp(4px, 0.6vw, 7px) white",
                 paintOrder: "stroke fill",
               }}
             >
@@ -331,8 +331,8 @@ export default function RoomDisplayPage({
                 : "✓"}
             </span>
             <p
-              className="font-black text-white mt-3 sm:mt-4 capitalize"
-              style={{ fontSize: "clamp(1.25rem, 3.5vw, 2.25rem)" }}
+              className="font-black text-white mt-4 capitalize"
+              style={{ fontSize: "clamp(1.5rem, 4vw, 2.75rem)" }}
             >
               {isOccupied ? (displayGender ?? "Unknown") : "Available"}
             </p>
