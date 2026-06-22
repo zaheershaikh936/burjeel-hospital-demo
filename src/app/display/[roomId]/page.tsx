@@ -3,7 +3,8 @@
 import { use, useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Lock, Unlock } from "lucide-react";
+import { Lock, Unlock } from "lucide-react";
+import { logo as defaultLogo } from "@/public/images";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -135,21 +136,14 @@ export default function RoomDisplayPage({
       {/* ── Always-visible status bar ── */}
       <div className="relative z-20 shrink-0 flex items-center px-6 bg-white border-b border-gray-100" style={{ height: "72px" }}>
         {/* Logo */}
-        <div className="shrink-0 w-32 flex items-center">
-          {branding.logo ? (
-            <Image
-              src={branding.logo}
-              alt="Hospital Logo"
-              width={120}
-              height={52}
-              className="object-contain max-h-12"
-            />
-          ) : (
-            <div className="flex items-center gap-2 text-gray-400">
-              <Building2 className="w-6 h-6" />
-              <span className="text-sm font-semibold">Burjeel</span>
-            </div>
-          )}
+        <div className="shrink-0 w-36 flex items-center">
+          <Image
+            src={branding.logo || defaultLogo}
+            alt="Hospital Logo"
+            width={140}
+            height={56}
+            className="object-contain max-h-14"
+          />
         </div>
 
         {/* — STATUS — */}
@@ -165,7 +159,7 @@ export default function RoomDisplayPage({
         </div>
 
         {/* Spacer matching logo width */}
-        <div className="shrink-0 w-32 flex justify-end">
+        <div className="shrink-0 w-36 flex justify-end">
           {/* intentionally empty — lock button is floating */}
         </div>
       </div>
