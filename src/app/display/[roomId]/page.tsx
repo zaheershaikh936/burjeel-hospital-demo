@@ -275,22 +275,26 @@ export default function RoomDisplayPage({
       </AnimatePresence>
 
       {/* ── Main cards ── */}
-      <div className="flex-1 flex items-stretch gap-3 sm:gap-5 p-3 sm:p-5 relative z-10 min-h-0">
+      <div className="flex-1 flex items-center justify-center gap-4 sm:gap-6 p-4 sm:p-6 relative z-10 min-h-0">
         {/* Room number card */}
         <motion.div
           layout
-          className="flex-1 rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-lg px-4 sm:px-8"
-          style={{ backgroundColor: roomCardBg }}
+          className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-lg"
+          style={{
+            backgroundColor: roomCardBg,
+            width: "clamp(180px, 36vw, 380px)",
+            height: "clamp(180px, 36vw, 380px)",
+          }}
         >
           <p
             className="font-black text-white tracking-tight leading-none text-center"
-            style={{ fontSize: `clamp(3rem, ${fontSizePx * 0.11}vw + 2rem, ${fontSizePx}px)` }}
+            style={{ fontSize: `clamp(2.5rem, ${fontSizePx * 0.1}vw + 1rem, ${fontSizePx}px)` }}
           >
             {room.roomNumber}
           </p>
           <p
-            className="font-bold text-white/60 mt-3 sm:mt-4 text-center"
-            style={{ fontSize: "clamp(1rem, 2.5vw, 1.75rem)" }}
+            className="font-bold text-white/60 mt-2 sm:mt-3 text-center px-4"
+            style={{ fontSize: "clamp(0.85rem, 2vw, 1.4rem)" }}
           >
             {room.roomName}
           </p>
@@ -304,8 +308,12 @@ export default function RoomDisplayPage({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="flex-1 rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-lg px-4 sm:px-8"
-            style={{ backgroundColor: genderCardBg }}
+            className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-lg"
+            style={{
+              backgroundColor: genderCardBg,
+              width: "clamp(180px, 36vw, 380px)",
+              height: "clamp(180px, 36vw, 380px)",
+            }}
           >
             <span
               className="text-white leading-none"
