@@ -228,22 +228,22 @@ export default function BrandingPage() {
           {/* Mini preview */}
           <div>
             <p className="text-xs text-muted-foreground mb-2">Preview</p>
-            <div className="rounded-xl overflow-hidden" style={{ backgroundColor: getDisplayColor("displayBgColor") }}>
-              <div className="flex items-center gap-2 px-3 py-2" style={{ backgroundColor: getDisplayColor("headerColor") }}>
-                <span className="text-white/60 text-[9px] uppercase tracking-widest">Occupancy</span>
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border border-white text-white">Occupied</span>
-                <span className="text-white/60 text-[9px] uppercase tracking-widest">Gender</span>
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border border-white/50 text-white/70">Male</span>
-                <span className="ml-auto px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-orange-500 text-white">Save & Close</span>
+            <div className="rounded-xl overflow-hidden border border-border">
+              <div className="flex items-center gap-3 px-3 py-2" style={{ backgroundColor: getDisplayColor("headerColor") }}>
+                <span className="text-white/80 text-[9px] uppercase tracking-widest font-semibold">Occupancy</span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border-2 border-white bg-white text-gray-900">Occupied</span>
+                <span className="text-white/80 text-[9px] uppercase tracking-widest font-semibold">Patient Gender</span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border-2 border-white bg-white text-gray-900">Male</span>
+                <span className="ml-auto px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-orange-500 text-white border-2 border-orange-400">Save &amp; Close</span>
               </div>
-              <div className="flex gap-3 p-3">
-                <div className="flex-1 rounded-xl flex flex-col items-center justify-center py-4" style={{ backgroundColor: getDisplayColor("roomCardColor") }}>
-                  <p className="text-white font-black text-2xl">501</p>
-                  <p className="text-white/50 text-xs mt-0.5">Royal Room</p>
+              <div className="flex gap-2 p-2" style={{ backgroundColor: getDisplayColor("displayBgColor") }}>
+                <div className="flex-1 rounded-xl flex flex-col items-center justify-center py-5" style={{ backgroundColor: getDisplayColor("roomCardColor") }}>
+                  <p className="text-white font-black text-3xl">501</p>
+                  <p className="text-white/60 text-xs mt-1">Royal Room</p>
                 </div>
-                <div className="flex-1 rounded-xl flex flex-col items-center justify-center py-4" style={{ backgroundColor: getDisplayColor("maleColor") }}>
-                  <span className="text-white font-bold text-2xl">♂</span>
-                  <p className="text-white font-bold text-xs mt-0.5">Male</p>
+                <div className="flex-1 rounded-xl flex flex-col items-center justify-center py-5" style={{ backgroundColor: getDisplayColor("maleColor") }}>
+                  <span className="text-white font-bold text-3xl leading-none">♂</span>
+                  <p className="text-white font-black text-xs mt-1">Male</p>
                 </div>
               </div>
             </div>
