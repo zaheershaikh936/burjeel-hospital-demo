@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -12,18 +12,30 @@ import {
   LogOut,
 } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/rooms", label: "Rooms", icon: DoorOpen },
-  { href: "/branding", label: "Branding", icon: Palette },
-  { href: "/audit", label: "Audit Logs", icon: ClipboardList },
-];
+const ALL_NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["super_admin", "admin"] },
+  { href: "/rooms",     label: "Rooms",      icon: DoorOpen,         roles: ["super_admin", "admin"] },
+  { href: "/branding",  label: "Branding",   icon: Palette,          roles: ["super_admin"] },
+  { href: "/audit",     label: "Audit Logs", icon: ClipboardList,    roles: ["super_admin"] },
+] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { branding } = useBranding();
+  const { user, logout } = useAuth();
+
+  const navItems = ALL_NAV_ITEMS.filter((item) =>
+    user ? (item.roles as readonly string[]).includes(user.role) : false
+  );
+
+  function handleSignOut() {
+    logout();
+    router.push("/");
+  }
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen sticky top-0 shadow-sm">
@@ -53,7 +65,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
@@ -74,15 +86,23 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-3 py-4 border-t border-border">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-150"
+      {/* User info + Sign out */}
+      <div className="px-3 py-4 border-t border-border space-y-1">
+        {user && (
+          <div className="px-3 py-2 mb-1">
+            <p className="text-xs font-medium text-foreground truncate">{user.email}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {user.role === "super_admin" ? "Super Admin" : "Admin"}
+            </p>
+          </div>
+        )}
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-150"
         >
           <LogOut className="w-4 h-4" />
           Sign Out
-        </Link>
+        </button>
       </div>
     </aside>
   );

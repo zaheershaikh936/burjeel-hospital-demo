@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
   BedDouble,
@@ -12,22 +14,43 @@ import {
   Plus,
   ArrowRight,
   Activity,
+  LayoutGrid,
+  LayoutList,
+  Pencil,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { GenderBadge } from "@/components/shared/GenderBadge";
-import { useRooms } from "@/hooks/useRooms";
+import { useRooms, useDeleteRoom } from "@/hooks/useRooms";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
+import { useAuth } from "@/context/AuthContext";
 import { formatTimestamp } from "@/utils";
-import type { DashboardStats } from "@/types";
+import type { DashboardStats, Room } from "@/types";
 
 const CARD_VARIANTS = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.3 } }),
 };
+
+function getRoomBorderColor(room: Room): string {
+  if (room.status === "vacant") return "#82C179";
+  return "#ef4444";
+}
 
 function StatCard({
   title,
@@ -62,8 +85,16 @@ function StatCard({
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { rooms, isLoading } = useRooms();
   const { logs, isLoading: logsLoading } = useAuditLogs(10);
+  const deleteRoom = useDeleteRoom();
+
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === "super_admin";
+
+  const [viewMode, setViewMode] = useState<"list" | "card">("list");
+  const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
 
   const stats: DashboardStats = useMemo(() => {
     return {
@@ -83,6 +114,20 @@ export default function DashboardPage() {
     { title: "Female Patients", value: stats.female, icon: BedSingle, color: "bg-pink-500" },
   ];
 
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    try {
+      await deleteRoom.mutateAsync(deleteTarget.id);
+      toast.success("Room deleted");
+    } catch {
+      toast.error("Failed to delete room");
+    } finally {
+      setDeleteTarget(null);
+    }
+  }
+
+  const recentRooms = rooms.slice(0, 6);
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -101,24 +146,43 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Rooms */}
-        <div className="lg:col-span-2">
+        <div className={isSuperAdmin ? "lg:col-span-2" : "lg:col-span-3"}>
           <Card className="border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Activity className="w-4 h-4 text-muted-foreground" />
                 Recent Rooms
               </CardTitle>
-              <Link href="/rooms">
-                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
-                  View all <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                {/* View toggle */}
+                <div className="flex items-center border rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-1.5 transition-colors ${viewMode === "list" ? "bg-foreground text-background" : "hover:bg-muted"}`}
+                    title="List view"
+                  >
+                    <LayoutList className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("card")}
+                    className={`p-1.5 transition-colors ${viewMode === "card" ? "bg-foreground text-background" : "hover:bg-muted"}`}
+                    title="Card view"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <Link href="/rooms">
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
+                    View all <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent className="pt-0">
               {isLoading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                <div className={viewMode === "card" ? "grid grid-cols-2 sm:grid-cols-3 gap-3" : "space-y-3"}>
+                  {Array.from({ length: viewMode === "card" ? 6 : 4 }).map((_, i) => (
+                    <Skeleton key={i} className={viewMode === "card" ? "h-40 rounded-xl" : "h-12 w-full rounded-lg"} />
                   ))}
                 </div>
               ) : rooms.length === 0 ? (
@@ -131,9 +195,76 @@ export default function DashboardPage() {
                     </Button>
                   </Link>
                 </div>
+              ) : viewMode === "card" ? (
+                /* ── Card view ── */
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {recentRooms.map((room, i) => {
+                    const borderColor = getRoomBorderColor(room);
+                    const isVacant = room.status === "vacant";
+                    return (
+                      <motion.div
+                        key={room.id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                        className="bg-white rounded-xl p-3 flex flex-col gap-2"
+                        style={{
+                          border: `2px solid ${borderColor}`,
+                        }}
+                      >
+                        {/* Top row */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground font-medium">
+                            {room.floor ? `Floor ${room.floor}` : room.department}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <span
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: borderColor }}
+                            />
+                            <button
+                              onClick={() => router.push(`/rooms/edit/${room.id}`)}
+                              className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteTarget(room)}
+                              className="p-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Room name */}
+                        <p className="font-black text-sm uppercase leading-tight tracking-wide text-foreground">
+                          {room.roomName} · {room.roomNumber}
+                        </p>
+
+                        {/* Badges */}
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <StatusBadge status={room.status} />
+                          <GenderBadge gender={room.gender} />
+                        </div>
+
+                        {/* Open button */}
+                        <button
+                          onClick={() => window.open(room.displayUrl, "_blank")}
+                          className="mt-auto w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                          style={{ backgroundColor: isVacant ? "#82C179" : "#ef4444" }}
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Open
+                        </button>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               ) : (
+                /* ── List view ── */
                 <div className="space-y-2">
-                  {rooms.slice(0, 6).map((room) => (
+                  {recentRooms.map((room) => (
                     <div
                       key={room.id}
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors"
@@ -159,8 +290,8 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Quick Actions + Recent Logs */}
-        <div className="space-y-4">
+        {/* Quick Actions + Recent Logs — super_admin only */}
+        {isSuperAdmin && <div className="space-y-4">
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
@@ -226,8 +357,32 @@ export default function DashboardPage() {
               )}
             </CardContent>
           </Card>
-        </div>
+        </div>}
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Room</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete room{" "}
+              <strong>
+                {deleteTarget?.roomNumber} — {deleteTarget?.roomName}
+              </strong>
+              ? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

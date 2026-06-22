@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Unlock, Mars, Venus, CircleCheck, CircleHelp } from "lucide-react";
 import { logo as defaultLogo } from "@/public/images";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -168,7 +168,7 @@ export default function RoomDisplayPage({
 
         {/* — OCCUPIED / AVAILABLE — */}
         {(() => {
-          const statusColor = isOccupied ? "#F97316" : "#82C179";
+          const statusColor = isOccupied ? "#7E254B" : "#15803d";
           return (
             <div className="flex-1 flex items-center gap-3 sm:gap-5 px-3 sm:px-6">
               <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(8px, 0.45vh, 5px)" }} />
@@ -199,8 +199,8 @@ export default function RoomDisplayPage({
             animate={{ y: 0 }}
             exit={{ y: "-100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 px-5 sm:px-8 py-3 sm:py-4 shadow-xl"
-            style={{ backgroundColor: "#7E254B" }}
+            className="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 px-8 shadow-xl"
+            style={{ backgroundColor: "#7E254B", minHeight: "clamp(110px, 16vh, 160px)" }}
           >
             {/* Occupancy */}
             <div className="flex flex-col items-center gap-1">
@@ -292,14 +292,17 @@ export default function RoomDisplayPage({
           }}
         >
           <p
-            className="font-black text-white tracking-tight leading-none text-center"
-            style={{ fontSize: `clamp(3.5rem, ${fontSizePx * 0.13}vw + 1rem, ${fontSizePx}px)` }}
+            className="font-black text-white leading-none text-center"
+            style={{
+              fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
+              lineHeight: 1,
+            }}
           >
             {room.roomNumber}
           </p>
           <p
-            className="font-bold text-white/60 mt-3 text-center px-6"
-            style={{ fontSize: "clamp(1.1rem, 2.8vw, 2rem)" }}
+            className="font-black text-white/80 mt-4 text-center px-6"
+            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
           >
             {room.roomName}
           </p>
@@ -320,24 +323,19 @@ export default function RoomDisplayPage({
               height: "min(48vw, 74vh)",
             }}
           >
-            <span
-              className="text-white leading-none"
-              style={{
-                fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
-                lineHeight: 1,
-                WebkitTextStroke: "clamp(5px, 0.8vw, 9px) white",
-                paintOrder: "stroke fill",
-              }}
-            >
-              {isOccupied
-                ? displayGender === "male"   ? "♂"
-                : displayGender === "female" ? "♀"
-                : "?"
-                : "✓"}
-            </span>
+            {(() => {
+              const iconSize = "clamp(5rem, 16vw, 11rem)";
+              const iconStyle = { width: iconSize, height: iconSize, strokeWidth: 2.5 };
+              if (isOccupied) {
+                if (displayGender === "male") return <Mars className="text-white" style={iconStyle} />;
+                if (displayGender === "female") return <Venus className="text-white" style={iconStyle} />;
+                return <CircleHelp className="text-white" style={iconStyle} />;
+              }
+              return <CircleCheck className="text-white" style={iconStyle} />;
+            })()}
             <p
-              className="font-black text-white mt-4 capitalize"
-              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
+              className="font-black text-white mt-4 capitalize text-center px-4"
+              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem" }}
             >
               {isOccupied ? (displayGender ?? "Unknown") : "Available"}
             </p>

@@ -1,3 +1,11 @@
+export type UserRole = "super_admin" | "admin";
+
+export interface AppUser {
+  uid: string;
+  email: string;
+  role: UserRole;
+}
+
 export type RoomStatus = "occupied" | "vacant";
 export type PatientGender = "male" | "female" | null;
 export type AuditSource = "admin" | "tablet";

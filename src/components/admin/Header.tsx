@@ -1,9 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/context/AuthContext";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -20,7 +22,12 @@ function getPageTitle(pathname: string): string {
 
 export function Header() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const title = getPageTitle(pathname);
+
+  const initials = user?.email
+    ? user.email.slice(0, 2).toUpperCase()
+    : "AD";
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-border px-6 py-4 flex items-center justify-between shadow-sm">
@@ -36,13 +43,18 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5 text-muted-foreground" />
-        </Button>
+      <div className="flex items-center gap-3">
+        {user && (
+          <Badge
+            variant="outline"
+            className="hidden sm:inline-flex text-xs capitalize"
+          >
+            {user.role === "super_admin" ? "Super Admin" : "Admin"}
+          </Badge>
+        )}
         <Avatar className="w-8 h-8">
           <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
-            AD
+            {initials}
           </AvatarFallback>
         </Avatar>
       </div>
