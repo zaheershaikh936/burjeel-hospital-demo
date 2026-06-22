@@ -164,7 +164,7 @@ export default function BrandingPage() {
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-xl border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden shrink-0">
               {logoPreview || branding.logo ? (
-                <Image src={logoPreview || branding.logo} alt="Logo" width={96} height={96} className="object-contain w-full h-full" />
+                <Image src={logoPreview || branding.logo} alt="Logo" width={250} height={250} className="object-contain w-full h-full" />
               ) : (
                 <Building2 className="w-10 h-10 text-muted-foreground/40" />
               )}

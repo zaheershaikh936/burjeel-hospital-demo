@@ -26,13 +26,13 @@ function StatusClock({ color }: { color: string }) {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
-  if (!now) return <div style={{ minWidth: "clamp(120px, 16vw, 180px)" }} />;
+  if (!now) return <div style={{ minWidth: "clamp(180px, 22vw, 300px)" }} />;
   const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
   const date = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   return (
-    <div className="text-right shrink-0" style={{ minWidth: "clamp(120px, 16vw, 180px)" }}>
-      <p className="font-black leading-tight" style={{ color, fontSize: "clamp(1.2rem, 3vw, 2rem)" }}>{time}</p>
-      <p className="font-bold leading-tight" style={{ color, fontSize: "clamp(0.75rem, 1.6vw, 1.05rem)", opacity: 0.8 }}>{date}</p>
+    <div className="text-right shrink-0" style={{ minWidth: "clamp(180px, 22vw, 300px)" }}>
+      <p className="font-black leading-none" style={{ color, fontSize: "clamp(1.4rem, 3.2vw, 2.8rem)" }}>{time}</p>
+      <p className="font-bold leading-tight" style={{ color, fontSize: "clamp(0.8rem, 1.4vw, 1.2rem)", opacity: 0.8 }}>{date}</p>
     </div>
   );
 }
@@ -151,18 +151,18 @@ export default function RoomDisplayPage({
     >
       {/* ── Status bar (always visible) ── */}
       <div
-        className="relative z-20 shrink-0 flex items-center px-4 sm:px-6 bg-white border-b border-gray-100"
-        style={{ height: "clamp(80px, 12vh, 108px)" }}
+        className="relative z-20 shrink-0 flex items-center px-8 pt-4 pb-2 bg-white border-b border-gray-100"
+        style={{ minHeight: "clamp(110px, 16vh, 160px)" }}
       >
         {/* Logo */}
-        <div className="shrink-0 flex items-center" style={{ width: "clamp(160px, 22vw, 260px)" }}>
+        <div className="shrink-0 flex items-center" style={{ width: "clamp(160px, 22vw, 300px)" }}>
           <Image
             src={branding.logo || defaultLogo}
             alt="Hospital Logo"
-            width={350}
-            height={350}
-            className="object-contain w-full"
-            style={{ maxHeight: "clamp(60px, 9vh, 90px)" }}
+            width={400}
+            height={400}
+            className="object-contain object-left w-full"
+            style={{ maxHeight: "clamp(90px, 13vh, 140px)" }}
           />
         </div>
 
@@ -171,18 +171,18 @@ export default function RoomDisplayPage({
           const statusColor = isOccupied ? "#F97316" : "#82C179";
           return (
             <div className="flex-1 flex items-center gap-3 sm:gap-5 px-3 sm:px-6">
-              <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(3px, 0.45vh, 5px)" }} />
+              <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(8px, 0.45vh, 5px)" }} />
               <span
                 className="font-black uppercase whitespace-nowrap"
                 style={{
                   color: statusColor,
-                  fontSize: "clamp(1.3rem, 3.8vw, 2.4rem)",
+                  fontSize: "clamp(2rem, 3.8vw, 2.4rem)",
                   letterSpacing: "0.16em",
                 }}
               >
                 {isOccupied ? "OCCUPIED" : "AVAILABLE"}
               </span>
-              <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(3px, 0.45vh, 5px)" }} />
+              <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(8px, 0.45vh, 5px)" }} />
             </div>
           );
         })()}
@@ -280,15 +280,15 @@ export default function RoomDisplayPage({
       </AnimatePresence>
 
       {/* ── Main cards ── */}
-      <div className="flex-1 flex items-center justify-center gap-5 sm:gap-8 p-4 sm:p-6 relative z-10 min-h-0">
+      <div className="flex-1 flex items-center justify-center gap-5 sm:gap-8 px-8 py-4 relative z-10 min-h-0">
         {/* Room number card */}
         <motion.div
           layout
           className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-xl"
           style={{
             backgroundColor: roomCardBg,
-            width: "min(44vw, 62vh)",
-            height: "min(44vw, 62vh)",
+            width: "min(48vw, 74vh)",
+            height: "min(48vw, 74vh)",
           }}
         >
           <p
@@ -316,16 +316,16 @@ export default function RoomDisplayPage({
             className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-xl"
             style={{
               backgroundColor: genderCardBg,
-              width: "min(44vw, 62vh)",
-              height: "min(44vw, 62vh)",
+              width: "min(48vw, 74vh)",
+              height: "min(48vw, 74vh)",
             }}
           >
             <span
               className="text-white leading-none"
               style={{
-                fontSize: `clamp(5rem, ${Math.round(fontSizePx * 1.2) * 0.14}vw + 2rem, ${Math.round(fontSizePx * 1.2)}px)`,
+                fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
                 lineHeight: 1,
-                WebkitTextStroke: "clamp(4px, 0.6vw, 7px) white",
+                WebkitTextStroke: "clamp(5px, 0.8vw, 9px) white",
                 paintOrder: "stroke fill",
               }}
             >
@@ -337,7 +337,7 @@ export default function RoomDisplayPage({
             </span>
             <p
               className="font-black text-white mt-4 capitalize"
-              style={{ fontSize: "clamp(1.5rem, 4vw, 2.75rem)" }}
+              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
             >
               {isOccupied ? (displayGender ?? "Unknown") : "Available"}
             </p>
