@@ -167,23 +167,28 @@ export default function RoomDisplayPage({
         </div>
 
         {/* — OCCUPIED / AVAILABLE — */}
-        <div className="flex-1 flex items-center gap-3 sm:gap-5 px-3 sm:px-6">
-          <div className="flex-1 rounded-full" style={{ backgroundColor: headerColor, height: "clamp(3px, 0.45vh, 5px)" }} />
-          <span
-            className="font-black uppercase whitespace-nowrap"
-            style={{
-              color: headerColor,
-              fontSize: "clamp(1.3rem, 3.8vw, 2.4rem)",
-              letterSpacing: "0.16em",
-            }}
-          >
-            {isOccupied ? "OCCUPIED" : "AVAILABLE"}
-          </span>
-          <div className="flex-1 rounded-full" style={{ backgroundColor: headerColor, height: "clamp(3px, 0.45vh, 5px)" }} />
-        </div>
+        {(() => {
+          const statusColor = isOccupied ? "#F97316" : "#82C179";
+          return (
+            <div className="flex-1 flex items-center gap-3 sm:gap-5 px-3 sm:px-6">
+              <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(3px, 0.45vh, 5px)" }} />
+              <span
+                className="font-black uppercase whitespace-nowrap"
+                style={{
+                  color: statusColor,
+                  fontSize: "clamp(1.3rem, 3.8vw, 2.4rem)",
+                  letterSpacing: "0.16em",
+                }}
+              >
+                {isOccupied ? "OCCUPIED" : "AVAILABLE"}
+              </span>
+              <div className="flex-1 rounded-full" style={{ backgroundColor: statusColor, height: "clamp(3px, 0.45vh, 5px)" }} />
+            </div>
+          );
+        })()}
 
-        {/* Time & date */}
-        <StatusClock color={headerColor} />
+        {/* Time & date — fixed burgundy */}
+        <StatusClock color="#7E254B" />
       </div>
 
       {/* ── Slide-in control header (unlocked only) ── */}
@@ -195,7 +200,7 @@ export default function RoomDisplayPage({
             exit={{ y: "-100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 px-5 sm:px-8 py-3 sm:py-4 shadow-xl"
-            style={{ backgroundColor: headerColor }}
+            style={{ backgroundColor: "#7E254B" }}
           >
             {/* Occupancy */}
             <div className="flex flex-col items-center gap-1">

@@ -11,9 +11,9 @@ export const DEFAULT_BRANDING: Branding = {
   displayBgColor: "#ffffff",
   headerColor: "#96163C",
   roomCardColor: "#000000",
-  maleColor: "#4169E1",
+  maleColor: "#5079D1",
   femaleColor: "#be185d",
-  availableColor: "#15803d",
+  availableColor: "#82C179",
   displayFontSize: 110,
   bannerEnabled: true,
   bannerText:
