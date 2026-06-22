@@ -37,6 +37,8 @@ export interface Branding {
   maleColor: string;
   femaleColor: string;
   availableColor: string;
+  // Display typography
+  displayFontSize: number;
   // Promotional banner
   bannerEnabled: boolean;
   bannerText: string;

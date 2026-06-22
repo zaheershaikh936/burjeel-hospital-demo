@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { Upload, Palette, Save, Building2, RefreshCw, Monitor, Megaphone } from "lucide-react";
+import { Upload, Palette, Save, Building2, RefreshCw, Monitor, Megaphone, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,11 +71,13 @@ export default function BrandingPage() {
   const [displayColors, setDisplayColors] = useState<Partial<Branding>>({});
   const [bannerText, setBannerText] = useState("");
   const [bannerEnabled, setBannerEnabled] = useState<boolean | null>(null);
+  const [fontSize, setFontSize] = useState<number | null>(null);
 
   const primary   = adminColors.primary   || branding.primaryColor;
   const secondary = adminColors.secondary || branding.secondaryColor;
   const currentBannerText    = bannerText    !== "" ? bannerText    : (branding.bannerText    ?? DEFAULT_BRANDING.bannerText);
   const currentBannerEnabled = bannerEnabled !== null ? bannerEnabled : (branding.bannerEnabled ?? true);
+  const currentFontSize      = fontSize      !== null ? fontSize      : (branding.displayFontSize ?? DEFAULT_BRANDING.displayFontSize);
 
   function getDisplayColor(key: keyof Branding): string {
     return (displayColors[key] as string | undefined) ?? (branding[key] as string) ?? (DEFAULT_BRANDING[key] as string);
@@ -119,6 +121,14 @@ export default function BrandingPage() {
       toast.success("Display colors saved");
       setDisplayColors({});
     } catch { toast.error("Failed to save display colors"); }
+  }
+
+  async function handleSaveFontSize() {
+    try {
+      await updateBranding.mutateAsync({ displayFontSize: currentFontSize });
+      toast.success("Font size saved — all displays updated");
+      setFontSize(null);
+    } catch { toast.error("Failed to save font size"); }
   }
 
   async function handleSaveBanner() {
@@ -251,6 +261,46 @@ export default function BrandingPage() {
           <div className="flex justify-end">
             <Button onClick={handleSaveDisplayColors} disabled={updateBranding.isPending} className="gap-2">
               {updateBranding.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Display Colors
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Display Font Size */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Type className="w-4 h-4 text-muted-foreground" /> Display Font Size
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Room Number Size</Label>
+              <span className="text-sm font-mono font-semibold tabular-nums w-12 text-right">{currentFontSize}px</span>
+            </div>
+            <input
+              type="range"
+              min={60}
+              max={180}
+              step={5}
+              value={currentFontSize}
+              onChange={(e) => setFontSize(Number(e.target.value))}
+              className="w-full accent-primary h-2 rounded-full cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>60px</span>
+              <span>Small ← → Large</span>
+              <span>180px</span>
+            </div>
+          </div>
+          {/* Live size preview */}
+          <div className="rounded-xl flex items-center justify-center py-6" style={{ backgroundColor: getDisplayColor("roomCardColor") }}>
+            <p className="text-white font-black leading-none" style={{ fontSize: `${currentFontSize}px` }}>501</p>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleSaveFontSize} disabled={updateBranding.isPending} className="gap-2">
+              {updateBranding.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Font Size
             </Button>
           </div>
         </CardContent>

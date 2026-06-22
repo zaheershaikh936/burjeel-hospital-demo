@@ -14,6 +14,7 @@ export const DEFAULT_BRANDING: Branding = {
   maleColor: "#4169E1",
   femaleColor: "#be185d",
   availableColor: "#15803d",
+  displayFontSize: 110,
   bannerEnabled: true,
   bannerText:
     "Welcome to Burjeel Hospital  ·  Your health is our priority  ·  Please maintain silence  ·  Thank you for choosing us",

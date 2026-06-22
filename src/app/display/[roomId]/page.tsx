@@ -1,8 +1,9 @@
 "use client";
 
 import { use, useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Unlock } from "lucide-react";
+import { Building2, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { RoomClock } from "@/components/display/RoomClock";
 import { useRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
 import { useBranding } from "@/hooks/useBranding";
 import { AUTO_LOCK_TIMEOUT_MS } from "@/constants";
+import { DEFAULT_BRANDING } from "@/services/branding.service";
 import type { RoomStatus, PatientGender } from "@/types";
 
 export default function RoomDisplayPage({
@@ -93,12 +94,13 @@ export default function RoomDisplayPage({
   const displayGender = pendingGender;
   const isOccupied = displayStatus === "occupied";
 
-  const bgColor     = branding.displayBgColor || "#ffffff";
-  const headerColor = branding.headerColor    || "#7B2856";
-  const roomCardBg  = branding.roomCardColor  || "#000000";
-  const maleColor   = branding.maleColor      || "#4169E1";
-  const femaleColor = branding.femaleColor    || "#be185d";
-  const availColor  = branding.availableColor || "#15803d";
+  const bgColor     = branding.displayBgColor  || DEFAULT_BRANDING.displayBgColor;
+  const headerColor = branding.headerColor      || DEFAULT_BRANDING.headerColor;
+  const roomCardBg  = branding.roomCardColor    || DEFAULT_BRANDING.roomCardColor;
+  const maleColor   = branding.maleColor        || DEFAULT_BRANDING.maleColor;
+  const femaleColor = branding.femaleColor      || DEFAULT_BRANDING.femaleColor;
+  const availColor  = branding.availableColor   || DEFAULT_BRANDING.availableColor;
+  const fontSizePx  = branding.displayFontSize  || DEFAULT_BRANDING.displayFontSize;
 
   const genderCardBg = isOccupied
     ? displayGender === "male"
@@ -127,130 +129,164 @@ export default function RoomDisplayPage({
 
   return (
     <div
-      className="h-screen w-screen flex flex-col overflow-hidden select-none"
+      className="h-screen w-screen flex flex-col overflow-hidden select-none relative"
       style={{ backgroundColor: bgColor }}
     >
-      {/* Header */}
-      <div
-        className="relative z-20 flex items-center gap-6 px-8 py-4 shrink-0"
-        style={{ backgroundColor: headerColor }}
-      >
-        {/* Occupancy */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-white/80 text-xs font-semibold uppercase tracking-widest">
-            Occupancy
-          </span>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleControlClick(() => setPendingStatus("occupied"))}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
-                displayStatus === "occupied"
-                  ? "bg-white text-gray-900 border-white"
-                  : "bg-transparent text-white border-white hover:bg-white/10",
-                isLocked && "pointer-events-none opacity-60"
-              )}
-            >
-              Occupied
-            </button>
-            <button
-              onClick={() => handleControlClick(() => { setPendingStatus("vacant"); setPendingGender(null); })}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
-                displayStatus === "vacant"
-                  ? "bg-white text-gray-900 border-white"
-                  : "bg-transparent text-white border-white hover:bg-white/10",
-                isLocked && "pointer-events-none opacity-60"
-              )}
-            >
-              Available
-            </button>
-          </div>
+      {/* ── Always-visible status bar ── */}
+      <div className="relative z-20 shrink-0 flex items-center px-6 bg-white border-b border-gray-100" style={{ height: "72px" }}>
+        {/* Logo */}
+        <div className="shrink-0 w-32 flex items-center">
+          {branding.logo ? (
+            <Image
+              src={branding.logo}
+              alt="Hospital Logo"
+              width={120}
+              height={52}
+              className="object-contain max-h-12"
+            />
+          ) : (
+            <div className="flex items-center gap-2 text-gray-400">
+              <Building2 className="w-6 h-6" />
+              <span className="text-sm font-semibold">Burjeel</span>
+            </div>
+          )}
         </div>
 
-        {/* Gender */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-white/80 text-xs font-semibold uppercase tracking-widest">
-            Patient Gender
+        {/* — STATUS — */}
+        <div className="flex-1 flex items-center gap-4 px-6">
+          <div className="flex-1 h-0.5 rounded-full" style={{ backgroundColor: headerColor }} />
+          <span
+            className="font-black uppercase tracking-[0.18em] whitespace-nowrap text-2xl"
+            style={{ color: headerColor }}
+          >
+            {isOccupied ? "OCCUPIED" : "AVAILABLE"}
           </span>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleControlClick(() => { if (pendingStatus === "occupied") setPendingGender("male"); })}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
-                displayGender === "male"
-                  ? "bg-white text-gray-900 border-white"
-                  : "bg-transparent text-white border-white hover:bg-white/10",
-                (isLocked || pendingStatus === "vacant") && "pointer-events-none opacity-60"
-              )}
-            >
-              Male
-            </button>
-            <button
-              onClick={() => handleControlClick(() => { if (pendingStatus === "occupied") setPendingGender("female"); })}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
-                displayGender === "female"
-                  ? "bg-white text-gray-900 border-white"
-                  : "bg-transparent text-white border-white hover:bg-white/10",
-                (isLocked || pendingStatus === "vacant") && "pointer-events-none opacity-60"
-              )}
-            >
-              Female
-            </button>
-          </div>
+          <div className="flex-1 h-0.5 rounded-full" style={{ backgroundColor: headerColor }} />
         </div>
 
-        <div className="flex-1" />
-
-        {/* Save & Close */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-transparent text-xs font-semibold uppercase tracking-widest select-none">
-            &nbsp;
-          </span>
-          <Popover open={saveOpen} onOpenChange={setSaveOpen}>
-            <PopoverTrigger
-              onClick={() => { if (!isLocked) { setSaveOpen(true); resetAutoLock(); } }}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-black uppercase cursor-pointer transition-all duration-150",
-                "bg-orange-500 text-white border-2 border-orange-400 hover:bg-orange-600 active:scale-95",
-                isLocked && "pointer-events-none opacity-60"
-              )}
-            >
-              Save &amp; Close
-            </PopoverTrigger>
-            <PopoverContent className="w-60 p-4" align="end" side="bottom">
-              <p className="text-sm font-semibold mb-1">Confirm changes?</p>
-              <p className="text-xs text-muted-foreground mb-3">
-                Updates room status on all displays in real time.
-              </p>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => setSaveOpen(false)}>
-                  Cancel
-                </Button>
-                <Button size="sm" className="flex-1" onClick={handleSave} disabled={updateStatus.isPending}>
-                  {updateStatus.isPending ? (
-                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : "Confirm"}
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+        {/* Spacer matching logo width */}
+        <div className="shrink-0 w-32 flex justify-end">
+          {/* intentionally empty — lock button is floating */}
         </div>
       </div>
 
-      {/* Main cards */}
-      <div className="flex-1 flex items-stretch gap-4 p-6 relative z-10">
+      {/* ── Slide-in control header (unlocked only) ── */}
+      <AnimatePresence>
+        {!isLocked && (
+          <motion.div
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            className="absolute top-0 left-0 right-0 z-30 flex items-center gap-6 px-8 py-4 shadow-xl"
+            style={{ backgroundColor: headerColor }}
+          >
+            {/* Occupancy */}
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest">Occupancy</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleControlClick(() => setPendingStatus("occupied"))}
+                  className={cn(
+                    "px-5 py-1.5 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
+                    displayStatus === "occupied"
+                      ? "bg-white text-gray-900 border-white"
+                      : "bg-transparent text-white border-white hover:bg-white/10"
+                  )}
+                >
+                  Occupied
+                </button>
+                <button
+                  onClick={() => handleControlClick(() => { setPendingStatus("vacant"); setPendingGender(null); })}
+                  className={cn(
+                    "px-5 py-1.5 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
+                    displayStatus === "vacant"
+                      ? "bg-white text-gray-900 border-white"
+                      : "bg-transparent text-white border-white hover:bg-white/10"
+                  )}
+                >
+                  Available
+                </button>
+              </div>
+            </div>
+
+            {/* Gender */}
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest">Patient Gender</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleControlClick(() => { if (pendingStatus === "occupied") setPendingGender("male"); })}
+                  className={cn(
+                    "px-5 py-1.5 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
+                    displayGender === "male"
+                      ? "bg-white text-gray-900 border-white"
+                      : "bg-transparent text-white border-white hover:bg-white/10",
+                    pendingStatus === "vacant" && "opacity-40 pointer-events-none"
+                  )}
+                >
+                  Male
+                </button>
+                <button
+                  onClick={() => handleControlClick(() => { if (pendingStatus === "occupied") setPendingGender("female"); })}
+                  className={cn(
+                    "px-5 py-1.5 rounded-full text-sm font-black uppercase border-2 transition-all duration-150",
+                    displayGender === "female"
+                      ? "bg-white text-gray-900 border-white"
+                      : "bg-transparent text-white border-white hover:bg-white/10",
+                    pendingStatus === "vacant" && "opacity-40 pointer-events-none"
+                  )}
+                >
+                  Female
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1" />
+
+            {/* Save & Close */}
+            <Popover open={saveOpen} onOpenChange={setSaveOpen}>
+              <PopoverTrigger
+                onClick={() => { setSaveOpen(true); resetAutoLock(); }}
+                className="px-6 py-2 rounded-full text-sm font-black uppercase cursor-pointer transition-all duration-150 bg-orange-500 text-white border-2 border-orange-400 hover:bg-orange-600 active:scale-95"
+              >
+                Save &amp; Close
+              </PopoverTrigger>
+              <PopoverContent className="w-60 p-4" align="end" side="bottom">
+                <p className="text-sm font-semibold mb-1">Confirm changes?</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Updates room status on all displays in real time.
+                </p>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => setSaveOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" className="flex-1" onClick={handleSave} disabled={updateStatus.isPending}>
+                    {updateStatus.isPending ? (
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : "Confirm"}
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Main cards ── */}
+      <div className="flex-1 flex items-center justify-center gap-6 px-10 relative z-10">
         {/* Room number card */}
         <motion.div
           layout
-          className="flex-1 rounded-3xl flex flex-col items-center justify-center shadow-lg"
-          style={{ backgroundColor: roomCardBg }}
+          className="rounded-[40px] flex flex-col items-center justify-center shadow-lg py-10 px-8"
+          style={{ backgroundColor: roomCardBg, width: "42%", minHeight: "55vh" }}
         >
-          <p className="text-[110px] font-black text-white tracking-tight leading-none">
+          <p
+            className="font-black text-white tracking-tight leading-none"
+            style={{ fontSize: `${fontSizePx}px` }}
+          >
             {room.roomNumber}
           </p>
-          <p className="text-3xl font-bold text-white mt-4">{room.roomName}</p>
+          <p className="text-2xl font-bold text-white/60 mt-4 text-center">{room.roomName}</p>
         </motion.div>
 
         {/* Status / gender card */}
@@ -261,12 +297,17 @@ export default function RoomDisplayPage({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="flex-1 rounded-3xl flex flex-col items-center justify-center shadow-lg"
-            style={{ backgroundColor: genderCardBg }}
+            className="rounded-[40px] flex flex-col items-center justify-center shadow-lg py-10 px-8"
+            style={{ backgroundColor: genderCardBg, width: "42%", minHeight: "55vh" }}
           >
             <span
               className="text-white leading-none"
-              style={{ fontSize: "130px", lineHeight: 1, WebkitTextStroke: "6px white", paintOrder: "stroke fill" }}
+              style={{
+                fontSize: `${Math.round(fontSizePx * 1.2)}px`,
+                lineHeight: 1,
+                WebkitTextStroke: "6px white",
+                paintOrder: "stroke fill",
+              }}
             >
               {isOccupied
                 ? displayGender === "male" ? "♂"
@@ -274,21 +315,14 @@ export default function RoomDisplayPage({
                 : "?"
                 : "✓"}
             </span>
-            <p className="text-4xl font-black text-white mt-4 capitalize">
+            <p className="text-3xl font-black text-white mt-4 capitalize">
               {isOccupied ? (displayGender ?? "Unknown") : "Available"}
             </p>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Footer clock */}
-      <div className="relative z-10 px-8 pb-3 flex justify-end shrink-0">
-        <div className="text-gray-400 opacity-60">
-          <RoomClock />
-        </div>
-      </div>
-
-      {/* Promotional banner */}
+      {/* ── Promotional banner ── */}
       {branding.bannerEnabled && branding.bannerText && (
         <div className="shrink-0 z-20 overflow-hidden border-t border-white/10" style={{ backgroundColor: headerColor }}>
           <div className="py-2 overflow-hidden whitespace-nowrap">
@@ -303,21 +337,22 @@ export default function RoomDisplayPage({
         </div>
       )}
 
-      {/* Lock / Unlock button */}
+      {/* ── Lock / Unlock button (always on top) ── */}
       <button
         onClick={() => (isLocked ? unlock() : lock())}
         className={cn(
-          "absolute right-5 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-md",
+          "absolute right-6 z-40 flex items-center justify-center rounded-full w-11 h-11 transition-all duration-200 shadow",
           isLocked
-            ? "bg-black/10 hover:bg-black/20 border border-black/10"
-            : "bg-black/20 hover:bg-black/30 ring-2 ring-black/20 border border-black/15"
+            ? "bg-black/8 hover:bg-black/15 border border-black/10"
+            : "bg-white ring-2 ring-gray-200 border border-gray-200 hover:bg-gray-50"
         )}
+        style={{ top: "calc(72px / 2)", transform: "translateY(-50%)" }}
         title={isLocked ? "Unlock to edit" : "Lock"}
       >
         {isLocked ? (
-          <Lock className="w-5 h-5 text-black/40" />
+          <Lock className="w-4.5 h-4.5 text-black/35" />
         ) : (
-          <Unlock className="w-5 h-5 text-black/70" />
+          <Unlock className="w-4.5 h-4.5" style={{ color: headerColor }} />
         )}
       </button>
     </div>
