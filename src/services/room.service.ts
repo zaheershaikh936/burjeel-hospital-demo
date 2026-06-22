@@ -12,7 +12,7 @@ import {
 import { database } from "@/lib/firebase/config";
 import { COLLECTIONS } from "@/constants";
 import { generateDisplayUrl } from "@/utils";
-import type { Room, RoomFormData, RoomStatus, PatientGender } from "@/types";
+import type { Room, RoomFormData, RoomStatus, PatientGender, RoomType } from "@/types";
 
 // Rooms are keyed by roomNumber: rooms/{roomNumber}
 function roomRef(roomNumber: string) {
@@ -29,6 +29,7 @@ function parseRoom(key: string, val: Record<string, unknown>): Room {
     building: (val.building as string) ?? "",
     status: (val.status as RoomStatus) ?? "vacant",
     gender: (val.gender as PatientGender) ?? null,
+    roomType: (val.roomType as RoomType) ?? undefined,
     displayUrl: (val.displayUrl as string) ?? generateDisplayUrl(key),
     createdAt: (val.createdAt as number) ?? 0,
     updatedAt: (val.updatedAt as number) ?? 0,

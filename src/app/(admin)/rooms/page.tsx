@@ -56,6 +56,22 @@ function getRoomBorderColor(room: Room): string {
   return "#ef4444";
 }
 
+function RoomTypeBadge({ room }: { room: Room }) {
+  const isOperation = room.roomType === "operation";
+  return (
+    <span
+      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
+      style={
+        isOperation
+          ? { backgroundColor: "#dbeafe", color: "#1d4ed8" }
+          : { backgroundColor: "#dcfce7", color: "#15803d" }
+      }
+    >
+      {isOperation ? "Operation" : "Day Care"}
+    </span>
+  );
+}
+
 export default function RoomsPage() {
   const router = useRouter();
   const { rooms, isLoading } = useRooms();
@@ -64,6 +80,7 @@ export default function RoomsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [genderFilter, setGenderFilter] = useState<string>("all");
+  const [roomTypeFilter, setRoomTypeFilter] = useState<string>("all");
   const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "card">("list");
 
@@ -77,7 +94,12 @@ export default function RoomsPage() {
     const matchGender =
       genderFilter === "all" ||
       (genderFilter === "none" ? !r.gender : r.gender === genderFilter);
-    return matchSearch && matchStatus && matchGender;
+    const matchRoomType =
+      roomTypeFilter === "all" ||
+      (roomTypeFilter === "day_care"
+        ? !r.roomType || r.roomType === "day_care"
+        : r.roomType === roomTypeFilter);
+    return matchSearch && matchStatus && matchGender && matchRoomType;
   });
 
   function copyDisplayUrl(room: Room) {
@@ -101,40 +123,63 @@ export default function RoomsPage() {
     <div className="space-y-5">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 flex-wrap flex-1">
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search rooms..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+        <div className="flex items-end gap-3 flex-wrap flex-1">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground font-medium">Search</span>
+            <div className="relative w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search rooms..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
           </div>
 
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "all")}>
-            <SelectTrigger className="w-36">
-              <Filter className="w-3 h-3 mr-1 text-muted-foreground" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="occupied">Occupied</SelectItem>
-              <SelectItem value="vacant">Vacant</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground font-medium">Status</span>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "all")}>
+              <SelectTrigger className="w-36">
+                <Filter className="w-3 h-3 mr-1 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="occupied">Occupied</SelectItem>
+                <SelectItem value="vacant">Vacant</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={genderFilter} onValueChange={(v) => setGenderFilter(v ?? "all")}>
-            <SelectTrigger className="w-36">
-              <SelectValue placeholder="Gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Gender</SelectItem>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="none">No Gender</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground font-medium">Gender</span>
+            <Select value={genderFilter} onValueChange={(v) => setGenderFilter(v ?? "all")}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Gender</SelectItem>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="none">No Gender</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground font-medium">Room Type</span>
+            <Select value={roomTypeFilter} onValueChange={(v) => setRoomTypeFilter(v ?? "all")}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="day_care">Day Care</SelectItem>
+                <SelectItem value="operation">Operation</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -164,10 +209,43 @@ export default function RoomsPage() {
         </div>
       </div>
 
-      {/* Count */}
-      <p className="text-sm text-muted-foreground">
-        {isLoading ? "Loading..." : `${filtered.length} room${filtered.length !== 1 ? "s" : ""} found`}
-      </p>
+      {/* Count + active filter labels */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <p className="text-sm text-muted-foreground">
+          {isLoading ? "Loading..." : `${filtered.length} room${filtered.length !== 1 ? "s" : ""} found`}
+        </p>
+        {statusFilter !== "all" && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+            Status: {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+            <button onClick={() => setStatusFilter("all")} className="hover:text-destructive ml-0.5">×</button>
+          </span>
+        )}
+        {genderFilter !== "all" && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+            Gender: {genderFilter === "none" ? "No Gender" : genderFilter.charAt(0).toUpperCase() + genderFilter.slice(1)}
+            <button onClick={() => setGenderFilter("all")} className="hover:text-destructive ml-0.5">×</button>
+          </span>
+        )}
+        {roomTypeFilter !== "all" && (
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+            style={
+              roomTypeFilter === "operation"
+                ? { backgroundColor: "#dbeafe", color: "#1d4ed8" }
+                : { backgroundColor: "#dcfce7", color: "#15803d" }
+            }
+          >
+            {roomTypeFilter === "operation" ? "Operation" : "Day Care"}
+            <button onClick={() => setRoomTypeFilter("all")} className="hover:opacity-60 ml-0.5">×</button>
+          </span>
+        )}
+        {search && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+            Search: &quot;{search}&quot;
+            <button onClick={() => setSearch("")} className="hover:text-destructive ml-0.5">×</button>
+          </span>
+        )}
+      </div>
 
       {/* ── Card view ── */}
       {viewMode === "card" ? (
@@ -232,6 +310,7 @@ export default function RoomsPage() {
 
                   {/* Badges */}
                   <div className="flex items-center gap-1 flex-wrap">
+                    <RoomTypeBadge room={room} />
                     <StatusBadge status={room.status} />
                     <GenderBadge gender={room.gender} />
                   </div>
@@ -264,6 +343,7 @@ export default function RoomsPage() {
                     <TableHead className="hidden md:table-cell">Department</TableHead>
                     <TableHead className="hidden lg:table-cell">Floor</TableHead>
                     <TableHead className="hidden lg:table-cell">Building</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Gender</TableHead>
                     <TableHead className="text-right pr-4">Actions</TableHead>
@@ -273,7 +353,7 @@ export default function RoomsPage() {
                   {isLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <TableRow key={i}>
-                        {Array.from({ length: 8 }).map((__, j) => (
+                        {Array.from({ length: 9 }).map((__, j) => (
                           <TableCell key={j}>
                             <Skeleton className="h-4 w-full" />
                           </TableCell>
@@ -282,7 +362,7 @@ export default function RoomsPage() {
                     ))
                   ) : filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-14">
+                      <TableCell colSpan={9} className="text-center py-14">
                         <BedDouble className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                         <p className="text-sm text-muted-foreground">No rooms found</p>
                       </TableCell>
@@ -308,6 +388,9 @@ export default function RoomsPage() {
                         </TableCell>
                         <TableCell className="hidden lg:table-cell text-foreground text-sm">
                           {room.building}
+                        </TableCell>
+                        <TableCell>
+                          <RoomTypeBadge room={room} />
                         </TableCell>
                         <TableCell>
                           <StatusBadge status={room.status} />

@@ -9,6 +9,7 @@ export interface AppUser {
 export type RoomStatus = "occupied" | "vacant";
 export type PatientGender = "male" | "female" | null;
 export type AuditSource = "admin" | "tablet";
+export type RoomType = "day_care" | "operation";
 
 export interface Room {
   id: string;
@@ -19,6 +20,7 @@ export interface Room {
   building: string;
   status: RoomStatus;
   gender: PatientGender;
+  roomType?: RoomType;
   displayUrl: string;
   createdAt: number;
   updatedAt: number;
@@ -32,6 +34,7 @@ export interface RoomFormData {
   building: string;
   status: RoomStatus;
   gender: PatientGender;
+  roomType?: RoomType;
 }
 
 export interface Branding {

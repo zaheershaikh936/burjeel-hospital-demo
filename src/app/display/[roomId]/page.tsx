@@ -27,8 +27,8 @@ function StatusClock({ color }: { color: string }) {
     return () => clearInterval(t);
   }, []);
   if (!now) return <div style={{ minWidth: "clamp(180px, 22vw, 300px)" }} />;
-  const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-  const date = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Dubai" });
+  const date = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Dubai" });
   return (
     <div className="text-right shrink-0" style={{ minWidth: "clamp(180px, 22vw, 300px)" }}>
       <p className="font-black leading-none" style={{ color, fontSize: "clamp(1.4rem, 3.2vw, 2.8rem)" }}>{time}</p>
@@ -144,12 +144,111 @@ export default function RoomDisplayPage({
     );
   }
 
+  const isDayCare = room.roomType === "day_care";
+  const iconSize  = "clamp(5rem, 16vw, 11rem)";
+  const iconStyle = { width: iconSize, height: iconSize, strokeWidth: 2.5 };
+
+  // ── DAY CARE layout: big OCCUPIED/VACANT banner + cards, read-only ──
+  if (isDayCare) {
+    return (
+      <div
+        className="h-screen w-screen flex flex-col overflow-hidden select-none"
+        style={{ backgroundColor: bgColor }}
+      >
+        {/* Banner */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{
+            backgroundColor: isOccupied ? "#DC2626" : "#16a34a",
+            height: "clamp(100px, 22vh, 180px)",
+          }}
+        >
+          <p
+            className="font-black text-white uppercase"
+            style={{ fontSize: "clamp(2.5rem, 7vw, 6rem)", letterSpacing: "0.12em" }}
+          >
+            {isOccupied ? "OCCUPIED" : "VACANT"}
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="flex-1 flex items-center justify-center gap-5 sm:gap-8 px-8 py-4 min-h-0">
+          {/* Room info card — name first, number below, bottom-aligned */}
+          <motion.div
+            layout
+            className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-xl"
+            style={{
+              backgroundColor: roomCardBg,
+              width: "min(48vw, 74vh)",
+              height: "min(48vw, 74vh)",
+            }}
+          >
+            <p
+              className="font-black text-white/70 text-center"
+              style={{
+                fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "88%",
+              }}
+            >
+              {room.roomName}
+            </p>
+            <p
+              className="font-black text-white text-center"
+              style={{
+                fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
+                lineHeight: 1,
+              }}
+            >
+              {room.roomNumber}
+            </p>
+          </motion.div>
+
+          {/* Status / gender card */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${displayStatus}-${displayGender}`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-[32px] sm:rounded-[40px] flex flex-col items-center justify-center shadow-xl"
+              style={{
+                backgroundColor: genderCardBg,
+                width: "min(48vw, 74vh)",
+                height: "min(48vw, 74vh)",
+              }}
+            >
+              {(() => {
+                if (isOccupied) {
+                  if (displayGender === "male") return <Mars className="text-white" style={iconStyle} />;
+                  if (displayGender === "female") return <Venus className="text-white" style={iconStyle} />;
+                  return <CircleHelp className="text-white" style={iconStyle} />;
+                }
+                return <CircleCheck className="text-white" style={iconStyle} />;
+              })()}
+              <p
+                className="font-black text-white capitalize text-center px-4"
+                style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem" }}
+              >
+                {isOccupied ? (displayGender ?? "Unknown") : "Ready for Use"}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    );
+  }
+
+  // ── OPERATION / DEFAULT layout: logo + clock header, interactive lock ──
   return (
     <div
       className="h-screen w-screen flex flex-col overflow-hidden select-none relative"
       style={{ backgroundColor: bgColor }}
     >
-      {/* ── Status bar (always visible) ── */}
+      {/* ── Status bar ── */}
       <div
         className="relative z-20 shrink-0 flex items-center px-8 pt-4 pb-2 bg-white border-b border-gray-100"
         style={{ minHeight: "clamp(110px, 16vh, 160px)" }}
@@ -166,7 +265,7 @@ export default function RoomDisplayPage({
           />
         </div>
 
-        {/* — OCCUPIED / AVAILABLE — */}
+        {/* OCCUPIED / AVAILABLE */}
         {(() => {
           const statusColor = isOccupied ? "#7E254B" : "#15803d";
           return (
@@ -187,11 +286,10 @@ export default function RoomDisplayPage({
           );
         })()}
 
-        {/* Time & date — fixed burgundy */}
         <StatusClock color="#7E254B" />
       </div>
 
-      {/* ── Slide-in control header (unlocked only) ── */}
+      {/* ── Slide-in unlock control ── */}
       <AnimatePresence>
         {!isLocked && (
           <motion.div
@@ -202,7 +300,6 @@ export default function RoomDisplayPage({
             className="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 px-8 shadow-xl"
             style={{ backgroundColor: "#7E254B", minHeight: "clamp(110px, 16vh, 160px)" }}
           >
-            {/* Occupancy */}
             <div className="flex flex-col items-center gap-1">
               <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest">Occupancy</span>
               <div className="flex items-center gap-2">
@@ -226,7 +323,6 @@ export default function RoomDisplayPage({
               </div>
             </div>
 
-            {/* Gender */}
             <div className="flex flex-col items-center gap-1">
               <span className="text-white/70 text-[10px] font-semibold uppercase tracking-widest">Patient Gender</span>
               <div className="flex items-center gap-2">
@@ -252,7 +348,6 @@ export default function RoomDisplayPage({
 
             <div className="flex-1" />
 
-            {/* Save & Close */}
             <Popover open={saveOpen} onOpenChange={setSaveOpen}>
               <PopoverTrigger
                 onClick={() => { setSaveOpen(true); resetAutoLock(); }}
@@ -301,7 +396,7 @@ export default function RoomDisplayPage({
             {room.roomNumber}
           </p>
           <p
-            className="font-black text-white/80 mt-4 text-center px-6"
+            className="font-black text-white/80 mt-4 text-center px-4 w-full truncate"
             style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
           >
             {room.roomName}
@@ -324,8 +419,6 @@ export default function RoomDisplayPage({
             }}
           >
             {(() => {
-              const iconSize = "clamp(5rem, 16vw, 11rem)";
-              const iconStyle = { width: iconSize, height: iconSize, strokeWidth: 2.5 };
               if (isOccupied) {
                 if (displayGender === "male") return <Mars className="text-white" style={iconStyle} />;
                 if (displayGender === "female") return <Venus className="text-white" style={iconStyle} />;
@@ -334,7 +427,7 @@ export default function RoomDisplayPage({
               return <CircleCheck className="text-white" style={iconStyle} />;
             })()}
             <p
-              className="font-black text-white mt-4 capitalize text-center px-4"
+              className="font-black text-white capitalize text-center px-4"
               style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem" }}
             >
               {isOccupied ? (displayGender ?? "Unknown") : "Available"}
@@ -364,7 +457,7 @@ export default function RoomDisplayPage({
         </div>
       )}
 
-      {/* ── Lock / Unlock (always on top, vertically centred in status bar) ── */}
+      {/* ── Lock / Unlock ── */}
       <button
         onClick={() => (isLocked ? unlock() : lock())}
         className={cn(

@@ -29,6 +29,7 @@ export const DEPARTMENTS = [
   "General Surgery",
   "Internal Medicine",
   "Day Care",
+  "Operation",
 ] as const;
 
 export const FLOORS = ["Ground", "1st", "2nd", "3rd", "4th", "5th", "6th"] as const;

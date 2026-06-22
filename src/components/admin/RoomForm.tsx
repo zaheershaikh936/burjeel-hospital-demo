@@ -24,6 +24,7 @@ const roomSchema = z.object({
   building: z.string().min(1, "Building is required"),
   status: z.enum(["occupied", "vacant"]),
   gender: z.enum(["male", "female"]).nullable(),
+  roomType: z.enum(["day_care", "operation"]).optional(),
 });
 
 interface RoomFormProps {
@@ -50,6 +51,7 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
       building: defaultValues?.building ?? "",
       status: defaultValues?.status ?? "vacant",
       gender: defaultValues?.gender ?? null,
+      roomType: defaultValues?.roomType ?? undefined,
     },
   });
 
@@ -145,6 +147,22 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
+          <Label>Room Type</Label>
+          <Select
+            defaultValue={defaultValues?.roomType}
+            onValueChange={(v) => setValue("roomType", v as "day_care" | "operation")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select room type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day_care">Day Care</SelectItem>
+              <SelectItem value="operation">Operation</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
           <Label>Status *</Label>
           <Select
             defaultValue={defaultValues?.status ?? "vacant"}
@@ -162,25 +180,25 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
             </SelectContent>
           </Select>
         </div>
-
-        {status === "occupied" && (
-          <div className="space-y-1.5">
-            <Label>Patient Gender</Label>
-            <Select
-              defaultValue={defaultValues?.gender ?? undefined}
-              onValueChange={(v) => setValue("gender", v as "male" | "female")}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </div>
+
+      {status === "occupied" && (
+        <div className="space-y-1.5">
+          <Label>Patient Gender</Label>
+          <Select
+            defaultValue={defaultValues?.gender ?? undefined}
+            onValueChange={(v) => setValue("gender", v as "male" | "female")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 pt-2">
         <Button type="submit" disabled={isSubmitting} className="min-w-24">
