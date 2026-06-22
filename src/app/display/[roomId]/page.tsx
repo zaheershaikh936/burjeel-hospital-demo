@@ -14,6 +14,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
+import { useBranding } from "@/hooks/useBranding";
+import { AUTO_LOCK_TIMEOUT_MS } from "@/constants";
+import { DEFAULT_BRANDING } from "@/services/branding.service";
+import type { RoomStatus, PatientGender } from "@/types";
 
 function StatusClock({ color }: { color: string }) {
   const [now, setNow] = useState<Date | null>(null);
@@ -22,20 +26,16 @@ function StatusClock({ color }: { color: string }) {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
-  if (!now) return <div style={{ width: "clamp(90px, 13vw, 140px)" }} />;
+  if (!now) return <div style={{ minWidth: "clamp(120px, 16vw, 180px)" }} />;
   const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
   const date = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   return (
-    <div className="text-right shrink-0" style={{ minWidth: "clamp(90px, 13vw, 140px)" }}>
-      <p className="font-black leading-tight" style={{ color, fontSize: "clamp(1rem, 2.4vw, 1.5rem)" }}>{time}</p>
-      <p className="font-semibold leading-tight" style={{ color, fontSize: "clamp(0.65rem, 1.3vw, 0.85rem)", opacity: 0.75 }}>{date}</p>
+    <div className="text-right shrink-0" style={{ minWidth: "clamp(120px, 16vw, 180px)" }}>
+      <p className="font-black leading-tight" style={{ color, fontSize: "clamp(1.2rem, 3vw, 2rem)" }}>{time}</p>
+      <p className="font-bold leading-tight" style={{ color, fontSize: "clamp(0.75rem, 1.6vw, 1.05rem)", opacity: 0.8 }}>{date}</p>
     </div>
   );
 }
-import { useBranding } from "@/hooks/useBranding";
-import { AUTO_LOCK_TIMEOUT_MS } from "@/constants";
-import { DEFAULT_BRANDING } from "@/services/branding.service";
-import type { RoomStatus, PatientGender } from "@/types";
 
 export default function RoomDisplayPage({
   params,
@@ -152,34 +152,34 @@ export default function RoomDisplayPage({
       {/* ── Status bar (always visible) ── */}
       <div
         className="relative z-20 shrink-0 flex items-center px-4 sm:px-6 bg-white border-b border-gray-100"
-        style={{ height: "clamp(64px, 10vh, 88px)" }}
+        style={{ height: "clamp(80px, 12vh, 108px)" }}
       >
         {/* Logo */}
-        <div className="shrink-0 flex items-center" style={{ width: "clamp(120px, 18vw, 200px)" }}>
+        <div className="shrink-0 flex items-center" style={{ width: "clamp(160px, 22vw, 260px)" }}>
           <Image
             src={branding.logo || defaultLogo}
             alt="Hospital Logo"
-            width={200}
-            height={80}
+            width={350}
+            height={350}
             className="object-contain w-full"
-            style={{ maxHeight: "clamp(48px, 7vh, 72px)" }}
+            style={{ maxHeight: "clamp(60px, 9vh, 90px)" }}
           />
         </div>
 
         {/* — OCCUPIED / AVAILABLE — */}
         <div className="flex-1 flex items-center gap-3 sm:gap-5 px-3 sm:px-6">
-          <div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: headerColor }} />
+          <div className="flex-1 rounded-full" style={{ backgroundColor: headerColor, height: "clamp(3px, 0.45vh, 5px)" }} />
           <span
             className="font-black uppercase whitespace-nowrap"
             style={{
               color: headerColor,
-              fontSize: "clamp(1.1rem, 3.2vw, 2rem)",
+              fontSize: "clamp(1.3rem, 3.8vw, 2.4rem)",
               letterSpacing: "0.16em",
             }}
           >
             {isOccupied ? "OCCUPIED" : "AVAILABLE"}
           </span>
-          <div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: headerColor }} />
+          <div className="flex-1 rounded-full" style={{ backgroundColor: headerColor, height: "clamp(3px, 0.45vh, 5px)" }} />
         </div>
 
         {/* Time & date */}
