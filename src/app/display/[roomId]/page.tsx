@@ -363,7 +363,7 @@ export default function RoomDisplayPage({
             ? "bg-transparent hover:bg-black/8"
             : "bg-black/10 hover:bg-black/15"
         )}
-        style={{ top: "calc(clamp(64px, 10vh, 88px) / 2)", transform: "translateY(-50%)" }}
+        style={{ bottom: "clamp(12px, 2vh, 20px)" }}
         title={isLocked ? "Unlock to edit" : "Lock"}
       >
         {isLocked
