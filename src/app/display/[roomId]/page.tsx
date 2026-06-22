@@ -265,8 +265,8 @@ export default function RoomDisplayPage({
             style={{ backgroundColor: genderCardBg }}
           >
             <span
-              className="text-white font-bold leading-none"
-              style={{ fontSize: "130px", lineHeight: 1 }}
+              className="text-white leading-none"
+              style={{ fontSize: "130px", lineHeight: 1, WebkitTextStroke: "6px white", paintOrder: "stroke fill" }}
             >
               {isOccupied
                 ? displayGender === "male" ? "♂"
