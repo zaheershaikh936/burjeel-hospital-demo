@@ -345,7 +345,8 @@ export default function RoomDisplayPage({
             <button
               onClick={() => { handleSave(); resetAutoLock(); }}
               disabled={updateStatus.isPending}
-              className="px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-black uppercase cursor-pointer transition-all duration-150 bg-orange-500 text-white border-2 border-orange-400 hover:bg-orange-600 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
+              className="px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-black uppercase cursor-pointer transition-all duration-150 border-2 active:scale-95 disabled:opacity-60 disabled:pointer-events-none text-gray-900"
+              style={{ backgroundColor: "#E0E669", borderColor: "#E0E669" }}
             >
               {updateStatus.isPending
                 ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
