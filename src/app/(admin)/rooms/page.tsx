@@ -422,10 +422,36 @@ export default function RoomsPage() {
                           <RoomTypeBadge room={room} />
                         </TableCell>
                         <TableCell>
-                          <StatusBadge status={room.status} />
+                          <button
+                            className="inline-flex disabled:opacity-50"
+                            disabled={updateStatus.isPending}
+                            onClick={() => updateStatus.mutate({
+                              room,
+                              status: room.status === "occupied" ? "vacant" : "occupied",
+                              gender: room.status === "occupied" ? null : (room.gender ?? "female"),
+                              source: "admin",
+                            })}
+                          >
+                            <StatusBadge status={room.status} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                          </button>
                         </TableCell>
                         <TableCell>
-                          <GenderBadge gender={room.gender} />
+                          {room.status === "occupied" ? (
+                            <button
+                              className="inline-flex disabled:opacity-50"
+                              disabled={updateStatus.isPending}
+                              onClick={() => updateStatus.mutate({
+                                room,
+                                status: "occupied",
+                                gender: room.gender === "male" ? "female" : "male",
+                                source: "admin",
+                              })}
+                            >
+                              <GenderBadge gender={room.gender} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                            </button>
+                          ) : (
+                            <GenderBadge gender={room.gender} />
+                          )}
                         </TableCell>
                         <TableCell>
                           <DeviceStatusBadge online={!!presence[room.id]?.online} />

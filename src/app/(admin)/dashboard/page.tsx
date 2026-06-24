@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { GenderBadge } from "@/components/shared/GenderBadge";
-import { useRooms, useDeleteRoom } from "@/hooks/useRooms";
+import { useRooms, useDeleteRoom, useUpdateRoomStatus, useUpdateRoom } from "@/hooks/useRooms";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useAuth } from "@/context/AuthContext";
 import { formatTimestamp } from "@/utils";
@@ -50,6 +50,20 @@ const CARD_VARIANTS = {
 function getRoomBorderColor(room: Room): string {
   if (room.status === "vacant") return "#82C179";
   return "#ef4444";
+}
+
+function RoomTypeBadge({ room }: { room: Room }) {
+  const isScreen2 = room.roomType === "output_screen_2";
+  return (
+    <span
+      className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold"
+      style={isScreen2
+        ? { backgroundColor: "#dbeafe", color: "#1d4ed8" }
+        : { backgroundColor: "#fef9c3", color: "#a16207" }}
+    >
+      {isScreen2 ? "Output screen 2" : "Output screen 1"}
+    </span>
+  );
 }
 
 function StatCard({
@@ -89,6 +103,8 @@ export default function DashboardPage() {
   const { rooms, isLoading } = useRooms();
   const { logs, isLoading: logsLoading } = useAuditLogs(10);
   const deleteRoom = useDeleteRoom();
+  const updateStatus = useUpdateRoomStatus();
+  const updateRoom = useUpdateRoom();
 
   const { user } = useAuth();
   const isSuperAdmin = user?.role === "super_admin";
@@ -243,9 +259,42 @@ export default function DashboardPage() {
                         </p>
 
                         {/* Badges */}
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <StatusBadge status={room.status} />
-                          <GenderBadge gender={room.gender} />
+                        <div className="flex flex-col gap-1.5">
+                          <button
+                            className="inline-flex disabled:opacity-50"
+                            disabled={updateRoom.isPending}
+                            onClick={() => updateRoom.mutate({ id: room.id, data: { roomType: room.roomType === "output_screen_2" ? "output_screen_1" : "output_screen_2" } })}
+                          >
+                            <RoomTypeBadge room={room} />
+                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              className="inline-flex disabled:opacity-50"
+                              disabled={updateStatus.isPending}
+                              onClick={() => updateStatus.mutate({
+                                room,
+                                status: room.status === "occupied" ? "vacant" : "occupied",
+                                gender: room.status === "occupied" ? null : (room.gender ?? "female"),
+                                source: "admin",
+                              })}
+                            >
+                              <StatusBadge status={room.status} className="cursor-pointer hover:opacity-80 transition-opacity text-sm" />
+                            </button>
+                            {room.status === "occupied" && (
+                              <button
+                                className="inline-flex disabled:opacity-50"
+                                disabled={updateStatus.isPending}
+                                onClick={() => updateStatus.mutate({
+                                  room,
+                                  status: "occupied",
+                                  gender: room.gender === "male" ? "female" : "male",
+                                  source: "admin",
+                                })}
+                              >
+                                <GenderBadge gender={room.gender} className="cursor-pointer hover:opacity-80 transition-opacity text-sm" />
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         {/* Open button */}
@@ -279,8 +328,39 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <StatusBadge status={room.status} />
-                        <GenderBadge gender={room.gender} />
+                        <button
+                          className="inline-flex disabled:opacity-50"
+                          disabled={updateRoom.isPending}
+                          onClick={() => updateRoom.mutate({ id: room.id, data: { roomType: room.roomType === "output_screen_2" ? "output_screen_1" : "output_screen_2" } })}
+                        >
+                          <RoomTypeBadge room={room} />
+                        </button>
+                        <button
+                          className="inline-flex disabled:opacity-50"
+                          disabled={updateStatus.isPending}
+                          onClick={() => updateStatus.mutate({
+                            room,
+                            status: room.status === "occupied" ? "vacant" : "occupied",
+                            gender: room.status === "occupied" ? null : (room.gender ?? "female"),
+                            source: "admin",
+                          })}
+                        >
+                          <StatusBadge status={room.status} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                        </button>
+                        {room.status === "occupied" && (
+                          <button
+                            className="inline-flex disabled:opacity-50"
+                            disabled={updateStatus.isPending}
+                            onClick={() => updateStatus.mutate({
+                              room,
+                              status: "occupied",
+                              gender: room.gender === "male" ? "female" : "male",
+                              source: "admin",
+                            })}
+                          >
+                            <GenderBadge gender={room.gender} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
