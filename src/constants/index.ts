@@ -18,16 +18,6 @@ export const QUERY_KEYS = {
 } as const;
 
 export const DEPARTMENTS = [
-  "ICU",
-  "Emergency",
-  "Cardiology",
-  "Orthopedics",
-  "Neurology",
-  "Pediatrics",
-  "Obstetrics",
-  "Oncology",
-  "General Surgery",
-  "Internal Medicine",
   "Day Care",
   "Operation",
 ] as const;

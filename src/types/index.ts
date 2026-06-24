@@ -9,15 +9,15 @@ export interface AppUser {
 export type RoomStatus = "occupied" | "vacant";
 export type PatientGender = "male" | "female" | null;
 export type AuditSource = "admin" | "tablet";
-export type RoomType = "day_care" | "operation";
+export type RoomType = "output_screen_1" | "output_screen_2";
 
 export interface Room {
   id: string;
   roomNumber: string;
   roomName: string;
   department: string;
-  floor: string;
-  building: string;
+  floor?: string;
+  building?: string;
   status: RoomStatus;
   gender: PatientGender;
   roomType?: RoomType;
@@ -29,9 +29,9 @@ export interface Room {
 export interface RoomFormData {
   roomNumber: string;
   roomName: string;
-  department: string;
-  floor: string;
-  building: string;
+  department?: string;
+  floor?: string;
+  building?: string;
   status: RoomStatus;
   gender: PatientGender;
   roomType?: RoomType;

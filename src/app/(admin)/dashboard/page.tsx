@@ -238,7 +238,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Room name */}
-                        <p className="font-black text-sm uppercase leading-tight tracking-wide text-foreground">
+                        <p className="font-black text-lg uppercase leading-tight tracking-wide text-foreground">
                           {room.roomName} · {room.roomNumber}
                         </p>
 

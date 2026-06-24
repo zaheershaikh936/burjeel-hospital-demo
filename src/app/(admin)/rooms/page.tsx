@@ -49,6 +49,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { GenderBadge } from "@/components/shared/GenderBadge";
 import { useRooms, useDeleteRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
+import { useAllPresence } from "@/hooks/usePresence";
 import type { Room } from "@/types";
 
 function getRoomBorderColor(room: Room): string {
@@ -56,18 +57,27 @@ function getRoomBorderColor(room: Room): string {
   return "#ef4444";
 }
 
-function RoomTypeBadge({ room }: { room: Room }) {
-  const isOperation = room.roomType === "operation";
+function DeviceStatusBadge({ online }: { online: boolean }) {
+  return (
+    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${online ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${online ? "bg-green-500 animate-pulse" : "bg-gray-400"}`} />
+      {online ? "Online" : "Offline"}
+    </span>
+  );
+}
+
+function RoomTypeBadge({ room, className }: { room: Room; className?: string }) {
+  const isScreen2 = room.roomType === "output_screen_2";
   return (
     <span
-      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold w-fit ${className ?? ""}`}
       style={
-        isOperation
+        isScreen2
           ? { backgroundColor: "#dbeafe", color: "#1d4ed8" }
-          : { backgroundColor: "#dcfce7", color: "#15803d" }
+          : { backgroundColor: "#fef9c3", color: "#a16207" }
       }
     >
-      {isOperation ? "Operation" : "Day Care"}
+      {isScreen2 ? "Output screen 2" : "Output screen 1"}
     </span>
   );
 }
@@ -77,6 +87,7 @@ export default function RoomsPage() {
   const { rooms, isLoading } = useRooms();
   const deleteRoom = useDeleteRoom();
   const updateStatus = useUpdateRoomStatus();
+  const presence = useAllPresence();
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -97,8 +108,8 @@ export default function RoomsPage() {
       (genderFilter === "none" ? !r.gender : r.gender === genderFilter);
     const matchRoomType =
       roomTypeFilter === "all" ||
-      (roomTypeFilter === "day_care"
-        ? !r.roomType || r.roomType === "day_care"
+      (roomTypeFilter === "output_screen_1"
+        ? !r.roomType || r.roomType === "output_screen_1"
         : r.roomType === roomTypeFilter);
     return matchSearch && matchStatus && matchGender && matchRoomType;
   });
@@ -169,15 +180,15 @@ export default function RoomsPage() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground font-medium">Room Type</span>
+            <span className="text-xs text-muted-foreground font-medium">Output Screen</span>
             <Select value={roomTypeFilter} onValueChange={(v) => setRoomTypeFilter(v ?? "all")}>
               <SelectTrigger className="w-36">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="day_care">Day Care</SelectItem>
-                <SelectItem value="operation">Operation</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="output_screen_1">Output screen 1</SelectItem>
+                <SelectItem value="output_screen_2">Output screen 2</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -270,14 +281,12 @@ export default function RoomsPage() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="bg-white rounded-xl p-3 flex flex-col gap-2"
+                  className="bg-white rounded-xl p-3 flex flex-col gap-2 min-h-44"
                   style={{ border: `2px solid ${borderColor}` }}
                 >
                   {/* Top row */}
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground font-medium">
-                      {room.floor ? `Floor ${room.floor}` : room.department}
-                    </span>
+                    <DeviceStatusBadge online={!!presence[room.id]?.online} />
                     <div className="flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: borderColor }} />
                       <button
@@ -310,40 +319,42 @@ export default function RoomsPage() {
                   </p>
 
                   {/* Badges */}
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <RoomTypeBadge room={room} />
-                    <button
-                      disabled={updateStatus.isPending}
-                      onClick={() => updateStatus.mutate({
-                        room,
-                        status: room.status === "occupied" ? "vacant" : "occupied",
-                        gender: room.status === "occupied" ? null : (room.gender ?? "female"),
-                        source: "admin",
-                      })}
-                      className="disabled:opacity-50"
-                    >
-                      <StatusBadge status={room.status} className="cursor-pointer hover:opacity-80 transition-opacity" />
-                    </button>
-                    {room.status === "occupied" && (
+                  <div className="flex flex-col gap-1.5">
+                    <RoomTypeBadge room={room} className="text-sm" />
+                    <div className="flex items-center gap-1">
                       <button
                         disabled={updateStatus.isPending}
                         onClick={() => updateStatus.mutate({
                           room,
-                          status: "occupied",
-                          gender: room.gender === "male" ? "female" : "male",
+                          status: room.status === "occupied" ? "vacant" : "occupied",
+                          gender: room.status === "occupied" ? null : (room.gender ?? "female"),
                           source: "admin",
                         })}
-                        className="disabled:opacity-50"
+                        className="inline-flex disabled:opacity-50"
                       >
-                        <GenderBadge gender={room.gender} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                        <StatusBadge status={room.status} className="text-sm cursor-pointer hover:opacity-80 transition-opacity" />
                       </button>
-                    )}
+                      {room.status === "occupied" && (
+                        <button
+                          disabled={updateStatus.isPending}
+                          onClick={() => updateStatus.mutate({
+                            room,
+                            status: "occupied",
+                            gender: room.gender === "male" ? "female" : "male",
+                            source: "admin",
+                          })}
+                          className="inline-flex disabled:opacity-50"
+                        >
+                          <GenderBadge gender={room.gender} className="text-sm cursor-pointer hover:opacity-80 transition-opacity" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Open button */}
                   <button
                     onClick={() => window.open(room.displayUrl, "_blank")}
-                    className="mt-auto w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                    className="mt-auto w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     style={{ backgroundColor: isVacant ? "#82C179" : "#ef4444" }}
                   >
                     <ExternalLink className="w-3 h-3" />
@@ -366,11 +377,10 @@ export default function RoomsPage() {
                     <TableHead className="pl-4">Room #</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead className="hidden md:table-cell">Department</TableHead>
-                    <TableHead className="hidden lg:table-cell">Floor</TableHead>
-                    <TableHead className="hidden lg:table-cell">Building</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>Output Screen</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Gender</TableHead>
+                    <TableHead>Device</TableHead>
                     <TableHead className="text-right pr-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -378,7 +388,7 @@ export default function RoomsPage() {
                   {isLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <TableRow key={i}>
-                        {Array.from({ length: 9 }).map((__, j) => (
+                        {Array.from({ length: 8 }).map((__, j) => (
                           <TableCell key={j}>
                             <Skeleton className="h-4 w-full" />
                           </TableCell>
@@ -387,7 +397,7 @@ export default function RoomsPage() {
                     ))
                   ) : filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-14">
+                          <TableCell colSpan={8} className="text-center py-14">
                         <BedDouble className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                         <p className="text-sm text-muted-foreground">No rooms found</p>
                       </TableCell>
@@ -405,14 +415,8 @@ export default function RoomsPage() {
                           {room.roomNumber}
                         </TableCell>
                         <TableCell className="font-medium text-foreground">{room.roomName}</TableCell>
-                        <TableCell className="hidden md:table-cell text-foreground text-sm">
+                        <TableCell className="hidden md:table-cell font-medium text-foreground">
                           {room.department}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell text-foreground text-sm">
-                          {room.floor}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell text-foreground text-sm">
-                          {room.building}
                         </TableCell>
                         <TableCell>
                           <RoomTypeBadge room={room} />
@@ -422,6 +426,9 @@ export default function RoomsPage() {
                         </TableCell>
                         <TableCell>
                           <GenderBadge gender={room.gender} />
+                        </TableCell>
+                        <TableCell>
+                          <DeviceStatusBadge online={!!presence[room.id]?.online} />
                         </TableCell>
                         <TableCell className="pr-4">
                           <div className="flex items-center justify-end gap-1">

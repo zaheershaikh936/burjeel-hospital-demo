@@ -8,6 +8,7 @@ import { logo as defaultLogo } from "@/public/images";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
+import { useRegisterPresence } from "@/hooks/usePresence";
 import { useBranding } from "@/hooks/useBranding";
 import { AUTO_LOCK_TIMEOUT_MS } from "@/constants";
 import { DEFAULT_BRANDING } from "@/services/branding.service";
@@ -40,6 +41,7 @@ export default function RoomDisplayPage({
   const { room, isLoading } = useRoom(roomId);
   const { branding } = useBranding();
   const updateStatus = useUpdateRoomStatus();
+  useRegisterPresence(roomId);
 
   const [isLocked, setIsLocked] = useState(true);
   const [pendingStatus, setPendingStatus] = useState<RoomStatus>("vacant");
@@ -136,7 +138,7 @@ export default function RoomDisplayPage({
     );
   }
 
-  const isDayCare = room.roomType === "day_care";
+  const isDayCare = room.roomType === "output_screen_1";
   const iconSize  = "clamp(5rem, 16vw, 11rem)";
   const iconStyle = { width: iconSize, height: iconSize, strokeWidth: 2.5 };
 

@@ -13,18 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEPARTMENTS, FLOORS, BUILDINGS } from "@/constants";
+import { DEPARTMENTS } from "@/constants";
+import { useAuth } from "@/context/AuthContext";
 import type { Room, RoomFormData } from "@/types";
 
 const roomSchema = z.object({
   roomNumber: z.string().min(1, "Room number is required"),
   roomName: z.string().min(1, "Room name is required"),
-  department: z.string().min(1, "Department is required"),
-  floor: z.string().min(1, "Floor is required"),
-  building: z.string().min(1, "Building is required"),
+  department: z.string().optional(),
   status: z.enum(["occupied", "vacant"]),
   gender: z.enum(["male", "female"]).nullable(),
-  roomType: z.enum(["day_care", "operation"]).optional(),
+  roomType: z.enum(["output_screen_1", "output_screen_2"]).optional(),
 });
 
 interface RoomFormProps {
@@ -35,6 +34,8 @@ interface RoomFormProps {
 }
 
 export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = "Save" }: RoomFormProps) {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === "super_admin";
   const {
     register,
     handleSubmit,
@@ -47,8 +48,6 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
       roomNumber: defaultValues?.roomNumber ?? "",
       roomName: defaultValues?.roomName ?? "",
       department: defaultValues?.department ?? "",
-      floor: defaultValues?.floor ?? "",
-      building: defaultValues?.building ?? "",
       status: defaultValues?.status ?? "vacant",
       gender: defaultValues?.gender ?? null,
       roomType: defaultValues?.roomType ?? undefined,
@@ -77,7 +76,7 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {isSuperAdmin && (
         <div className="space-y-1.5">
           <Label>Department *</Label>
           <Select
@@ -99,65 +98,21 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
             <p className="text-xs text-destructive">{errors.department.message}</p>
           )}
         </div>
-
-        <div className="space-y-1.5">
-          <Label>Floor *</Label>
-          <Select
-            defaultValue={defaultValues?.floor}
-            onValueChange={(v) => { if (v) setValue("floor", v); }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select floor" />
-            </SelectTrigger>
-            <SelectContent>
-              {FLOORS.map((f) => (
-                <SelectItem key={f} value={f}>
-                  {f}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.floor && (
-            <p className="text-xs text-destructive">{errors.floor.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>Building *</Label>
-          <Select
-            defaultValue={defaultValues?.building}
-            onValueChange={(v) => { if (v) setValue("building", v); }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select building" />
-            </SelectTrigger>
-            <SelectContent>
-              {BUILDINGS.map((b) => (
-                <SelectItem key={b} value={b}>
-                  {b}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.building && (
-            <p className="text-xs text-destructive">{errors.building.message}</p>
-          )}
-        </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Room Type</Label>
+          <Label>Output screen</Label>
           <Select
             defaultValue={defaultValues?.roomType}
-            onValueChange={(v) => setValue("roomType", v as "day_care" | "operation")}
+            onValueChange={(v) => setValue("roomType", v as "output_screen_1" | "output_screen_2")}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select room type" />
+              <SelectValue placeholder="Select output screen" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="day_care">Day Care</SelectItem>
-              <SelectItem value="operation">Operation</SelectItem>
+              <SelectItem value="output_screen_1">Output screen 1</SelectItem>
+              <SelectItem value="output_screen_2">Output screen 2</SelectItem>
             </SelectContent>
           </Select>
         </div>
