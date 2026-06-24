@@ -7,12 +7,6 @@ import { Lock, Unlock, Mars, Venus, CircleCheck, CircleHelp } from "lucide-react
 import { logo as defaultLogo } from "@/public/images";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
 import { useBranding } from "@/hooks/useBranding";
 import { AUTO_LOCK_TIMEOUT_MS } from "@/constants";
@@ -50,7 +44,6 @@ export default function RoomDisplayPage({
   const [isLocked, setIsLocked] = useState(true);
   const [pendingStatus, setPendingStatus] = useState<RoomStatus>("vacant");
   const [pendingGender, setPendingGender] = useState<PatientGender>(null);
-  const [saveOpen, setSaveOpen] = useState(false);
   const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -62,7 +55,6 @@ export default function RoomDisplayPage({
 
   const lock = useCallback(() => {
     setIsLocked(true);
-    setSaveOpen(false);
     if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
   }, []);
 
@@ -184,7 +176,7 @@ export default function RoomDisplayPage({
             }}
           >
             <p
-              className="font-black text-white/70 text-center"
+              className="font-black text-white text-center"
               style={{
                 fontSize: "clamp(2rem, 5vw, 3.5rem)",
                 whiteSpace: "nowrap",
@@ -348,28 +340,15 @@ export default function RoomDisplayPage({
 
             <div className="flex-1" />
 
-            <Popover open={saveOpen} onOpenChange={setSaveOpen}>
-              <PopoverTrigger
-                onClick={() => { setSaveOpen(true); resetAutoLock(); }}
-                className="px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-black uppercase cursor-pointer transition-all duration-150 bg-orange-500 text-white border-2 border-orange-400 hover:bg-orange-600 active:scale-95"
-              >
-                Save &amp; Close
-              </PopoverTrigger>
-              <PopoverContent className="w-56 sm:w-60 p-4" align="end" side="bottom">
-                <p className="text-sm font-semibold mb-1">Confirm changes?</p>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Updates room status on all displays in real time.
-                </p>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1" onClick={() => setSaveOpen(false)}>Cancel</Button>
-                  <Button size="sm" className="flex-1" onClick={handleSave} disabled={updateStatus.isPending}>
-                    {updateStatus.isPending
-                      ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      : "Confirm"}
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <button
+              onClick={() => { handleSave(); resetAutoLock(); }}
+              disabled={updateStatus.isPending}
+              className="px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-black uppercase cursor-pointer transition-all duration-150 bg-orange-500 text-white border-2 border-orange-400 hover:bg-orange-600 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
+            >
+              {updateStatus.isPending
+                ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : "Save & Close"}
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -396,7 +375,7 @@ export default function RoomDisplayPage({
             {room.roomNumber}
           </p>
           <p
-            className="font-black text-white/80 mt-4 text-center px-4 w-full truncate"
+            className="font-black text-white mt-4 text-center px-4 w-full truncate"
             style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
           >
             {room.roomName}

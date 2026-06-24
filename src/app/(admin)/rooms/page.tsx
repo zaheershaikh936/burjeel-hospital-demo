@@ -48,7 +48,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { GenderBadge } from "@/components/shared/GenderBadge";
-import { useRooms, useDeleteRoom } from "@/hooks/useRooms";
+import { useRooms, useDeleteRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
 import type { Room } from "@/types";
 
 function getRoomBorderColor(room: Room): string {
@@ -76,6 +76,7 @@ export default function RoomsPage() {
   const router = useRouter();
   const { rooms, isLoading } = useRooms();
   const deleteRoom = useDeleteRoom();
+  const updateStatus = useUpdateRoomStatus();
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -311,8 +312,32 @@ export default function RoomsPage() {
                   {/* Badges */}
                   <div className="flex items-center gap-1 flex-wrap">
                     <RoomTypeBadge room={room} />
-                    <StatusBadge status={room.status} />
-                    <GenderBadge gender={room.gender} />
+                    <button
+                      disabled={updateStatus.isPending}
+                      onClick={() => updateStatus.mutate({
+                        room,
+                        status: room.status === "occupied" ? "vacant" : "occupied",
+                        gender: room.status === "occupied" ? null : (room.gender ?? "female"),
+                        source: "admin",
+                      })}
+                      className="disabled:opacity-50"
+                    >
+                      <StatusBadge status={room.status} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                    </button>
+                    {room.status === "occupied" && (
+                      <button
+                        disabled={updateStatus.isPending}
+                        onClick={() => updateStatus.mutate({
+                          room,
+                          status: "occupied",
+                          gender: room.gender === "male" ? "female" : "male",
+                          source: "admin",
+                        })}
+                        className="disabled:opacity-50"
+                      >
+                        <GenderBadge gender={room.gender} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Open button */}
