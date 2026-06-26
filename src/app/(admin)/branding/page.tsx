@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { Upload, Palette, Save, Building2, RefreshCw, Monitor, Megaphone, Type } from "lucide-react";
+import { Upload, Palette, Save, Building2, RefreshCw, Monitor, Megaphone, Type, Mars } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ const DISPLAY_COLOR_FIELDS: { key: keyof Branding; label: string; description: s
   { key: "displayBgColor", label: "Background",  description: "Main screen background" },
   { key: "headerColor",    label: "Header Bar",   description: "Top control bar color" },
   { key: "roomCardColor",  label: "Room Card",    description: "Room number card background" },
+  { key: "cardTextColor",  label: "Card Text",    description: "Text & icon color on display cards" },
   { key: "maleColor",      label: "Male",         description: "Male patient card color" },
   { key: "femaleColor",    label: "Female",       description: "Female patient card color" },
   { key: "availableColor", label: "Available",    description: "Vacant/available card color" },
@@ -72,12 +73,14 @@ export default function BrandingPage() {
   const [bannerText, setBannerText] = useState("");
   const [bannerEnabled, setBannerEnabled] = useState<boolean | null>(null);
   const [fontSize, setFontSize] = useState<number | null>(null);
+  const [iconSize, setIconSize] = useState<number | null>(null);
 
   const primary   = adminColors.primary   || branding.primaryColor;
   const secondary = adminColors.secondary || branding.secondaryColor;
   const currentBannerText    = bannerText    !== "" ? bannerText    : (branding.bannerText    ?? DEFAULT_BRANDING.bannerText);
   const currentBannerEnabled = bannerEnabled !== null ? bannerEnabled : (branding.bannerEnabled ?? true);
-  const currentFontSize      = fontSize      !== null ? fontSize      : (branding.displayFontSize ?? DEFAULT_BRANDING.displayFontSize);
+  const currentFontSize = fontSize !== null ? fontSize : (branding.displayFontSize ?? DEFAULT_BRANDING.displayFontSize);
+  const currentIconSize = iconSize !== null ? iconSize : (branding.genderIconSize  ?? DEFAULT_BRANDING.genderIconSize);
 
   function getDisplayColor(key: keyof Branding): string {
     return (displayColors[key] as string | undefined) ?? (branding[key] as string) ?? (DEFAULT_BRANDING[key] as string);
@@ -129,6 +132,14 @@ export default function BrandingPage() {
       toast.success("Font size saved — all displays updated");
       setFontSize(null);
     } catch { toast.error("Failed to save font size"); }
+  }
+
+  async function handleSaveIconSize() {
+    try {
+      await updateBranding.mutateAsync({ genderIconSize: currentIconSize });
+      toast.success("Icon size saved — all displays updated");
+      setIconSize(null);
+    } catch { toast.error("Failed to save icon size"); }
   }
 
   async function handleSaveBanner() {
@@ -301,6 +312,46 @@ export default function BrandingPage() {
           <div className="flex justify-end">
             <Button onClick={handleSaveFontSize} disabled={updateBranding.isPending} className="gap-2">
               {updateBranding.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Font Size
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Gender Icon Size */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Type className="w-4 h-4 text-muted-foreground" /> Gender Icon Size
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Icon Size</Label>
+              <span className="text-sm font-mono font-semibold tabular-nums w-16 text-right">{currentIconSize}rem</span>
+            </div>
+            <input
+              type="range"
+              min={3}
+              max={16}
+              step={0.5}
+              value={currentIconSize}
+              onChange={(e) => setIconSize(Number(e.target.value))}
+              className="w-full accent-primary h-2 rounded-full cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>3rem</span>
+              <span>Small ← → Large</span>
+              <span>16rem</span>
+            </div>
+          </div>
+          {/* Live preview */}
+          <div className="rounded-xl flex items-center justify-center py-6" style={{ backgroundColor: getDisplayColor("maleColor") }}>
+            <Mars style={{ width: `${currentIconSize}rem`, height: `${currentIconSize}rem`, strokeWidth: 2.5, color: getDisplayColor("cardTextColor") }} />
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleSaveIconSize} disabled={updateBranding.isPending} className="gap-2">
+              {updateBranding.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Icon Size
             </Button>
           </div>
         </CardContent>

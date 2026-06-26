@@ -109,7 +109,8 @@ export default function RoomDisplayPage({
 
   const bgColor     = branding.displayBgColor || DEFAULT_BRANDING.displayBgColor;
   const headerColor = branding.headerColor    || DEFAULT_BRANDING.headerColor;
-  const roomCardBg  = branding.roomCardColor  || DEFAULT_BRANDING.roomCardColor;
+  const roomCardBg   = branding.roomCardColor  || DEFAULT_BRANDING.roomCardColor;
+  const cardTextColor = branding.cardTextColor || DEFAULT_BRANDING.cardTextColor;
   const maleColor   = branding.maleColor      || DEFAULT_BRANDING.maleColor;
   const femaleColor = branding.femaleColor    || DEFAULT_BRANDING.femaleColor;
   const availColor  = branding.availableColor || DEFAULT_BRANDING.availableColor;
@@ -139,8 +140,9 @@ export default function RoomDisplayPage({
   }
 
   const isDayCare = room.roomType === "output_screen_1";
-  const iconSize  = "clamp(5rem, 16vw, 11rem)";
-  const iconStyle = { width: iconSize, height: iconSize, strokeWidth: 2.5 };
+  const genderIconSize = branding.genderIconSize || DEFAULT_BRANDING.genderIconSize;
+  const iconSize  = `clamp(${(genderIconSize * 0.55).toFixed(1)}rem, 16vw, ${genderIconSize}rem)`;
+  const iconStyle = { width: iconSize, height: iconSize, strokeWidth: 2.5, color: cardTextColor };
 
   // ── DAY CARE layout: big OCCUPIED/VACANT banner + cards, read-only ──
   if (isDayCare) {
@@ -178,25 +180,27 @@ export default function RoomDisplayPage({
             }}
           >
             <p
-              className="font-black text-white text-center"
+              className="font-black text-center"
+              style={{
+                fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
+                lineHeight: 1,
+                color: cardTextColor,
+              }}
+            >
+              {room.roomNumber}
+            </p>
+            <p
+              className="font-black text-center"
               style={{
                 fontSize: "clamp(2rem, 5vw, 3.5rem)",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 maxWidth: "88%",
+                color: cardTextColor,
               }}
             >
               {room.roomName}
-            </p>
-            <p
-              className="font-black text-white text-center"
-              style={{
-                fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
-                lineHeight: 1,
-              }}
-            >
-              {room.roomNumber}
             </p>
           </motion.div>
 
@@ -217,15 +221,15 @@ export default function RoomDisplayPage({
             >
               {(() => {
                 if (isOccupied) {
-                  if (displayGender === "male") return <Mars className="text-white" style={iconStyle} />;
-                  if (displayGender === "female") return <Venus className="text-white" style={iconStyle} />;
-                  return <CircleHelp className="text-white" style={iconStyle} />;
+                  if (displayGender === "male") return <Mars style={iconStyle} />;
+                  if (displayGender === "female") return <Venus style={iconStyle} />;
+                  return <CircleHelp style={iconStyle} />;
                 }
-                return <CircleCheck className="text-white" style={iconStyle} />;
+                return <CircleCheck style={iconStyle} />;
               })()}
               <p
-                className="font-black text-white capitalize text-center px-4"
-                style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem" }}
+                className="font-black capitalize text-center px-4"
+                style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem", color: cardTextColor }}
               >
                 {isOccupied ? (displayGender ?? "Unknown") : "Ready for Use"}
               </p>
@@ -369,17 +373,18 @@ export default function RoomDisplayPage({
           }}
         >
           <p
-            className="font-black text-white leading-none text-center"
+            className="font-black leading-none text-center"
             style={{
               fontSize: `clamp(7rem, ${Math.round(fontSizePx * 1.2) * 0.18}vw + 2rem, ${Math.round(fontSizePx * 1.6)}px)`,
               lineHeight: 1,
+              color: cardTextColor,
             }}
           >
             {room.roomNumber}
           </p>
           <p
-            className="font-black text-white mt-4 text-center px-4 w-full truncate"
-            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
+            className="font-black mt-4 text-center px-4 w-full truncate"
+            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", color: cardTextColor }}
           >
             {room.roomName}
           </p>
@@ -402,15 +407,15 @@ export default function RoomDisplayPage({
           >
             {(() => {
               if (isOccupied) {
-                if (displayGender === "male") return <Mars className="text-white" style={iconStyle} />;
-                if (displayGender === "female") return <Venus className="text-white" style={iconStyle} />;
-                return <CircleHelp className="text-white" style={iconStyle} />;
+                if (displayGender === "male") return <Mars style={iconStyle} />;
+                if (displayGender === "female") return <Venus style={iconStyle} />;
+                return <CircleHelp style={iconStyle} />;
               }
-              return <CircleCheck className="text-white" style={iconStyle} />;
+              return <CircleCheck style={iconStyle} />;
             })()}
             <p
-              className="font-black text-white capitalize text-center px-4"
-              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem" }}
+              className="font-black capitalize text-center px-4"
+              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, marginTop: "2rem", color: cardTextColor }}
             >
               {isOccupied ? (displayGender ?? "Unknown") : "Available"}
             </p>

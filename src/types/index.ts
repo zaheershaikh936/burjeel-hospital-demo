@@ -45,11 +45,13 @@ export interface Branding {
   displayBgColor: string;
   headerColor: string;
   roomCardColor: string;
+  cardTextColor: string;
   maleColor: string;
   femaleColor: string;
   availableColor: string;
   // Display typography
   displayFontSize: number;
+  genderIconSize: number;
   // Promotional banner
   bannerEnabled: boolean;
   bannerText: string;

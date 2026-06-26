@@ -102,17 +102,17 @@ export function RoomForm({ defaultValues, onSubmit, isSubmitting, submitLabel = 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Output screen</Label>
+          <Label>Output Screen</Label>
           <Select
             defaultValue={defaultValues?.roomType}
             onValueChange={(v) => setValue("roomType", v as "output_screen_1" | "output_screen_2")}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select output screen" />
+              <SelectValue placeholder="Select Output Screen" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="output_screen_1">Output screen 1</SelectItem>
-              <SelectItem value="output_screen_2">Output screen 2</SelectItem>
+              <SelectItem value="output_screen_1">Output Screen 1</SelectItem>
+              <SelectItem value="output_screen_2">Output Screen 2</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -32,7 +32,7 @@ export default function LoginPage() {
       return;
     }
     setUser(user);
-    router.push("/dashboard");
+    router.push(user.role === "admin" ? "/rooms" : "/dashboard");
   }
 
   return (

@@ -36,16 +36,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { GenderBadge } from "@/components/shared/GenderBadge";
+import { StatCard, StatCardSkeleton } from "@/components/shared/StatCard";
 import { useRooms, useDeleteRoom, useUpdateRoomStatus, useUpdateRoom } from "@/hooks/useRooms";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useAuth } from "@/context/AuthContext";
 import { formatTimestamp } from "@/utils";
 import type { DashboardStats, Room } from "@/types";
-
-const CARD_VARIANTS = {
-  hidden: { opacity: 0, y: 16 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.3 } }),
-};
 
 function getRoomBorderColor(room: Room): string {
   if (room.status === "vacant") return "#82C179";
@@ -61,40 +57,8 @@ function RoomTypeBadge({ room }: { room: Room }) {
         ? { backgroundColor: "#dbeafe", color: "#1d4ed8" }
         : { backgroundColor: "#fef9c3", color: "#a16207" }}
     >
-      {isScreen2 ? "Output screen 2" : "Output screen 1"}
+      {isScreen2 ? "Output Screen 2" : "Output Screen 1"}
     </span>
-  );
-}
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  color,
-  index,
-}: {
-  title: string;
-  value: number;
-  icon: React.ElementType;
-  color: string;
-  index: number;
-}) {
-  return (
-    <motion.div custom={index} variants={CARD_VARIANTS} initial="hidden" animate="visible">
-      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">{title}</p>
-              <p className="text-3xl font-bold text-foreground mt-1">{value}</p>
-            </div>
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-              <Icon className="w-6 h-6 text-white" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
   );
 }
 
@@ -149,14 +113,7 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {isLoading
-          ? Array.from({ length: 5 }).map((_, i) => (
-              <Card key={i} className="border-0 shadow-sm">
-                <CardContent className="p-5">
-                  <Skeleton className="h-4 w-24 mb-3" />
-                  <Skeleton className="h-8 w-12" />
-                </CardContent>
-              </Card>
-            ))
+          ? Array.from({ length: 5 }).map((_, i) => <StatCardSkeleton key={i} />)
           : STAT_CARDS.map((card, i) => <StatCard key={card.title} {...card} index={i} />)}
       </div>
 

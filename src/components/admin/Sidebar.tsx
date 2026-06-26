@@ -16,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 const ALL_NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["super_admin", "admin"] },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["super_admin"] },
   { href: "/rooms",     label: "Rooms",      icon: DoorOpen,         roles: ["super_admin", "admin"] },
   { href: "/branding",  label: "Branding",   icon: Palette,          roles: ["super_admin"] },
   { href: "/audit",     label: "Audit Logs", icon: ClipboardList,    roles: ["super_admin"] },
@@ -67,6 +67,7 @@ export function Sidebar() {
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + "/");
+          const displayLabel = href === "/rooms" && user?.role === "admin" ? "Station" : label;
           return (
             <Link
               key={href}
@@ -80,7 +81,7 @@ export function Sidebar() {
               style={isActive ? { backgroundColor: branding.primaryColor } : undefined}
             >
               <Icon className="w-4 h-4 shrink-0" />
-              {label}
+              {displayLabel}
             </Link>
           );
         })}

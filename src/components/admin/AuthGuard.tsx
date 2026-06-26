@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-const SUPER_ADMIN_ONLY = ["/branding", "/audit"];
+const SUPER_ADMIN_ONLY = ["/branding", "/audit", "/dashboard"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -23,7 +23,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       const blocked = SUPER_ADMIN_ONLY.some(
         (p) => pathname === p || pathname.startsWith(p + "/")
       );
-      if (blocked) router.replace("/dashboard");
+      if (blocked) router.replace("/rooms");
     }
   }, [user, loading, pathname, router]);
 

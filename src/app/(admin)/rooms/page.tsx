@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -16,6 +16,10 @@ import {
   Filter,
   LayoutGrid,
   LayoutList,
+  BedSingle,
+  Users,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +54,8 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { GenderBadge } from "@/components/shared/GenderBadge";
 import { useRooms, useDeleteRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
 import { useAllPresence } from "@/hooks/usePresence";
+import { useAuth } from "@/context/AuthContext";
+import { StatCard, StatCardSkeleton } from "@/components/shared/StatCard";
 import type { Room } from "@/types";
 
 function getRoomBorderColor(room: Room): string {
@@ -77,7 +83,7 @@ function RoomTypeBadge({ room, className }: { room: Room; className?: string }) 
           : { backgroundColor: "#fef9c3", color: "#a16207" }
       }
     >
-      {isScreen2 ? "Output screen 2" : "Output screen 1"}
+      {isScreen2 ? "Output Screen 2" : "Output Screen 1"}
     </span>
   );
 }
@@ -88,6 +94,24 @@ export default function RoomsPage() {
   const deleteRoom = useDeleteRoom();
   const updateStatus = useUpdateRoomStatus();
   const presence = useAllPresence();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
+  const stats = useMemo(() => ({
+    total: rooms.length,
+    occupied: rooms.filter((r) => r.status === "occupied").length,
+    vacant: rooms.filter((r) => r.status === "vacant").length,
+    male: rooms.filter((r) => r.gender === "male").length,
+    female: rooms.filter((r) => r.gender === "female").length,
+  }), [rooms]);
+
+  const STAT_CARDS = [
+    { title: "Total Rooms", value: stats.total, icon: BedDouble, color: "bg-slate-500" },
+    { title: "Occupied", value: stats.occupied, icon: UserCheck, color: "bg-red-500" },
+    { title: "Vacant", value: stats.vacant, icon: UserX, color: "bg-green-500" },
+    { title: "Male Patients", value: stats.male, icon: Users, color: "bg-blue-500" },
+    { title: "Female Patients", value: stats.female, icon: BedSingle, color: "bg-pink-500" },
+  ];
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -133,6 +157,15 @@ export default function RoomsPage() {
 
   return (
     <div className="space-y-5">
+      {/* Stat cards — admin only */}
+      {isAdmin && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {isLoading
+            ? Array.from({ length: 5 }).map((_, i) => <StatCardSkeleton key={i} />)
+            : STAT_CARDS.map((card, i) => <StatCard key={card.title} {...card} index={i} />)}
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-end gap-3 flex-wrap flex-1">
@@ -187,8 +220,8 @@ export default function RoomsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
-                <SelectItem value="output_screen_1">Output screen 1</SelectItem>
-                <SelectItem value="output_screen_2">Output screen 2</SelectItem>
+                <SelectItem value="output_screen_1">Output Screen 1</SelectItem>
+                <SelectItem value="output_screen_2">Output Screen 2</SelectItem>
               </SelectContent>
             </Select>
           </div>
