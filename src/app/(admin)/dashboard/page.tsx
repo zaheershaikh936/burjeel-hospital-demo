@@ -111,7 +111,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch">
         {isLoading
           ? Array.from({ length: 5 }).map((_, i) => <StatCardSkeleton key={i} />)
           : STAT_CARDS.map((card, i) => <StatCard key={card.title} {...card} index={i} />)}

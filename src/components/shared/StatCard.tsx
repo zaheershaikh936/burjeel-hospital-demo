@@ -19,10 +19,10 @@ interface StatCardProps {
 
 export function StatCard({ title, value, icon: Icon, color, index }: StatCardProps) {
   return (
-    <motion.div custom={index} variants={CARD_VARIANTS} initial="hidden" animate="visible">
-      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between">
+    <motion.div custom={index} variants={CARD_VARIANTS} initial="hidden" animate="visible" className="h-full">
+      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow h-full">
+        <CardContent className="p-5 h-full">
+          <div className="flex items-center justify-between h-full">
             <div>
               <p className="text-sm text-muted-foreground font-medium">{title}</p>
               <p className="text-3xl font-bold text-foreground mt-1">{value}</p>
