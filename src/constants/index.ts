@@ -2,6 +2,9 @@ export const COLLECTIONS = {
   ROOMS: "rooms",
   BRANDING: "branding",
   AUDIT_LOGS: "auditLogs",
+  PLAYLIST: "playlist",
+  PLAYLISTS: "playlists",
+  MEDIA_LIBRARY: "mediaLibrary",
 } as const;
 
 export const BRANDING_DOC_ID = "config";
@@ -15,6 +18,8 @@ export const QUERY_KEYS = {
   ROOM: (id: string) => ["rooms", id] as const,
   BRANDING: ["branding"] as const,
   AUDIT_LOGS: ["auditLogs"] as const,
+  PLAYLIST: ["playlist"] as const,
+  MEDIA_LIBRARY: ["mediaLibrary"] as const,
 } as const;
 
 export const DEPARTMENTS = [

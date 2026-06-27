@@ -10,6 +10,8 @@ import {
   ClipboardList,
   Building2,
   LogOut,
+  Images,
+  ListVideo,
 } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 import { useAuth } from "@/context/AuthContext";
@@ -17,9 +19,11 @@ import Image from "next/image";
 
 const ALL_NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["super_admin"] },
-  { href: "/rooms",     label: "Rooms",      icon: DoorOpen,         roles: ["super_admin", "admin"] },
-  { href: "/branding",  label: "Branding",   icon: Palette,          roles: ["super_admin"] },
-  { href: "/audit",     label: "Audit Logs", icon: ClipboardList,    roles: ["super_admin"] },
+  { href: "/rooms",     label: "Rooms",      icon: DoorOpen,        roles: ["super_admin", "admin"] },
+  { href: "/branding",  label: "Branding",   icon: Palette,         roles: ["super_admin"] },
+  { href: "/media",     label: "Media",      icon: Images,          roles: ["super_admin"] },
+  { href: "/playlists", label: "Playlists",  icon: ListVideo,       roles: ["super_admin"] },
+  { href: "/audit",     label: "Audit Logs", icon: ClipboardList,   roles: ["super_admin"] },
 ] as const;
 
 export function Sidebar() {

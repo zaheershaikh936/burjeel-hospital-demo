@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-const SUPER_ADMIN_ONLY = ["/branding", "/audit", "/dashboard"];
+const SUPER_ADMIN_ONLY = ["/branding", "/audit", "/dashboard", "/media", "/playlists"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

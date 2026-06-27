@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { useRoom, useUpdateRoomStatus } from "@/hooks/useRooms";
 import { useRegisterPresence } from "@/hooks/usePresence";
 import { useBranding } from "@/hooks/useBranding";
+import { useRoomPlaylist } from "@/hooks/usePlaylists";
+import { PlaylistPlayer } from "@/components/display/PlaylistPlayer";
 import { AUTO_LOCK_TIMEOUT_MS } from "@/constants";
 import { DEFAULT_BRANDING } from "@/services/branding.service";
 import type { RoomStatus, PatientGender } from "@/types";
@@ -40,6 +42,7 @@ export default function RoomDisplayPage({
   const { roomId } = use(params);
   const { room, isLoading } = useRoom(roomId);
   const { branding } = useBranding();
+  const { items: playlistItems, playlist: roomPlaylist } = useRoomPlaylist(roomId);
   const updateStatus = useUpdateRoomStatus();
   useRegisterPresence(roomId);
 
@@ -47,6 +50,11 @@ export default function RoomDisplayPage({
   const [pendingStatus, setPendingStatus] = useState<RoomStatus>("vacant");
   const [pendingGender, setPendingGender] = useState<PatientGender>(null);
   const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // "room" = show room design, "playlist" = show playlist overlay
+  const [displayPhase, setDisplayPhase] = useState<"room" | "playlist">("room");
+  const playlistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ROOM_DISPLAY_MS = (roomPlaylist?.roomDisplayDuration ?? 10) * 1000;
 
   useEffect(() => {
     if (room && isLocked) {
@@ -97,9 +105,30 @@ export default function RoomDisplayPage({
     }
   }
 
+  // When room becomes occupied, always clear playlist and cancel timer
+  useEffect(() => {
+    const occupied = pendingStatus === "occupied";
+    if (occupied) {
+      setDisplayPhase("room");
+      if (playlistTimerRef.current) clearTimeout(playlistTimerRef.current);
+    }
+  }, [pendingStatus]);
+
+  // When vacant + has playlist + currently showing room → start 10-second countdown
+  useEffect(() => {
+    const vacant = pendingStatus === "vacant";
+    if (vacant && playlistItems.length > 0 && displayPhase === "room") {
+      playlistTimerRef.current = setTimeout(() => setDisplayPhase("playlist"), ROOM_DISPLAY_MS);
+      return () => {
+        if (playlistTimerRef.current) clearTimeout(playlistTimerRef.current);
+      };
+    }
+  }, [pendingStatus, playlistItems.length, displayPhase, ROOM_DISPLAY_MS]);
+
   useEffect(() => {
     return () => {
       if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+      if (playlistTimerRef.current) clearTimeout(playlistTimerRef.current);
     };
   }, []);
 
@@ -121,6 +150,8 @@ export default function RoomDisplayPage({
     : displayGender === "female" ? femaleColor
     : "#6b7280"
     : availColor;
+
+  const showPlaylist = !isOccupied && playlistItems.length > 0 && displayPhase === "playlist";
 
   if (isLoading) {
     return (
@@ -148,7 +179,7 @@ export default function RoomDisplayPage({
   if (isDayCare) {
     return (
       <div
-        className="h-screen w-screen flex flex-col overflow-hidden select-none"
+        className="h-screen w-screen flex flex-col overflow-hidden select-none relative"
         style={{ backgroundColor: bgColor }}
       >
         {/* Banner */}
@@ -236,6 +267,9 @@ export default function RoomDisplayPage({
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Playlist fullscreen overlay when vacant */}
+        {showPlaylist && <PlaylistPlayer items={playlistItems} onCycleComplete={() => setDisplayPhase("room")} />}
       </div>
     );
   }
@@ -422,6 +456,13 @@ export default function RoomDisplayPage({
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* ── Playlist overlay when vacant (above content, below unlock panel) ── */}
+      {showPlaylist && (
+        <div className="absolute inset-0" style={{ zIndex: 25 }}>
+          <PlaylistPlayer items={playlistItems} onCycleComplete={() => setDisplayPhase("room")} />
+        </div>
+      )}
 
       {/* ── Promotional banner ── */}
       {branding.bannerEnabled && branding.bannerText && (

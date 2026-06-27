@@ -77,3 +77,41 @@ export interface DashboardStats {
   male: number;
   female: number;
 }
+
+export type MediaType = "image" | "video";
+export type TransitionEffect = "none" | "fade" | "slide";
+
+export interface MediaFile {
+  id: string;
+  type: MediaType;
+  url: string;
+  storagePath: string;
+  fileName: string;
+  mimeType: string;
+  createdAt: number;
+}
+
+export interface PlaylistItem {
+  id: string;
+  type: MediaType;
+  url: string;
+  storagePath: string;
+  fileName: string;
+  mimeType: string;
+  order: number;
+  imageDuration?: number;
+  playbackSpeed?: number;
+  transition?: TransitionEffect;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Playlist {
+  id: string;
+  name: string;
+  roomIds: string[];
+  roomDisplayDuration: number; // seconds to show room UI before/after playlist
+  createdAt: number;
+  updatedAt: number;
+  items: PlaylistItem[];
+}
