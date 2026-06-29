@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 const SUPER_ADMIN_ONLY = ["/branding", "/audit", "/dashboard", "/media", "/playlists"];
+const MARKETING_ALLOWED = ["/media"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -24,6 +25,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         (p) => pathname === p || pathname.startsWith(p + "/")
       );
       if (blocked) router.replace("/rooms");
+    }
+
+    if (user.role === "marketing") {
+      const allowed = MARKETING_ALLOWED.some(
+        (p) => pathname === p || pathname.startsWith(p + "/")
+      );
+      if (!allowed) router.replace("/media");
     }
   }, [user, loading, pathname, router]);
 

@@ -165,7 +165,7 @@ export default function BrandingPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       {/* Logo */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-sm hidden">
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
             <Building2 className="w-4 h-4 text-muted-foreground" /> Hospital Logo

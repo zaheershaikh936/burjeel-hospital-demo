@@ -1,8 +1,9 @@
 import type { UserRole, AppUser } from "@/types";
 
 const USERS: Array<{ email: string; password: string; role: UserRole }> = [
-  { email: "superadmin@aim4it.ae", password: "password", role: "super_admin" },
-  { email: "admin@aim4it.ae",      password: "Password", role: "admin" },
+  { email: "superadmin@aim4it.ae",  password: "password", role: "super_admin" },
+  { email: "admin@aim4it.ae",       password: "Password", role: "admin" },
+  { email: "marketing@aim4it.ae",   password: "Password", role: "marketing" },
 ];
 
 const STORAGE_KEY = "burjeel_user";

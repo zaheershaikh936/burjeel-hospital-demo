@@ -21,7 +21,7 @@ const ALL_NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["super_admin"] },
   { href: "/rooms",     label: "Rooms",      icon: DoorOpen,        roles: ["super_admin", "admin"] },
   { href: "/branding",  label: "Branding",   icon: Palette,         roles: ["super_admin"] },
-  { href: "/media",     label: "Media",      icon: Images,          roles: ["super_admin"] },
+  { href: "/media",     label: "Media",      icon: Images,          roles: ["super_admin", "marketing"] },
   { href: "/playlists", label: "Playlists",  icon: ListVideo,       roles: ["super_admin"] },
   { href: "/audit",     label: "Audit Logs", icon: ClipboardList,   roles: ["super_admin"] },
 ] as const;
@@ -97,7 +97,7 @@ export function Sidebar() {
           <div className="px-3 py-2 mb-1">
             <p className="text-xs font-medium text-foreground truncate">{user.email}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {user.role === "super_admin" ? "Super Admin" : "Admin"}
+              {user.role === "super_admin" ? "Super Admin" : user.role === "marketing" ? "Marketing" : "Admin"}
             </p>
           </div>
         )}
